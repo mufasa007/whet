@@ -6,7 +6,8 @@ templates. There is no build step; Markdown and JSON are the product.
 ## Layout
 
 - `agents/*.md` — subagent definitions (YAML frontmatter + system prompt)
-- `skills/<name>/SKILL.md` — skills (frontmatter `name` must match dir name)
+- `skills/<name>/SKILL.md` — skills (frontmatter `name` must match dir name);
+  `skills/long-task-scheduler/templates/` holds the batch-ledger templates
 - `commands/*.md` — slash commands, exposed as `/whet:<file-stem>`
 - `hooks/hooks.json` + `hooks/scripts/` — hook config and shell scripts
 - `spec/templates/` — requirements/design/tasks templates used by spec-workflow
@@ -17,7 +18,10 @@ templates. There is no build step; Markdown and JSON are the product.
 - Content language: English. README carries a Chinese section — keep both in
   sync when features change.
 - Agent frontmatter: `name` matches file stem; `description` states WHEN to
-  invoke (it drives automatic delegation); default `model: inherit`.
+  invoke (it drives automatic delegation); default `model: inherit`. Never
+  hardcode specific model names — use family aliases (`haiku`, `sonnet`) only
+  for intentionally cheap agents; capability tiers are expressed as T1–T4
+  (see skills/model-router).
 - Skill descriptions must name concrete triggers ("use when ...").
 - Hook scripts: bash, `set -euo pipefail`, executable bit set, exit 2 to block
   a tool call, exit 0 otherwise. No dependency on jq.

@@ -1,79 +1,124 @@
 ---
 name: token-optimizer
 description: >
-  Token consumption optimization. Use when the user asks to reduce token usage /
-  cost, when context is filling up on a long task, or when designing prompts,
-  subagent fan-outs, or CLAUDE.md files where token efficiency matters. Provides
-  concrete techniques for context hygiene, delegation, and output discipline.
+  Token consumption optimization. Use when the user asks to reduce token usage
+  or cost, when context is filling up on a long task, when designing prompts or
+  subagent fan-outs, or for a periodic project-level token audit. Provides
+  in-flight techniques plus a four-layer project diagnostic (session, project
+  config, repo structure, process). Read-only diagnosis by default; only
+  applies project-wide changes when the user explicitly authorizes it.
 ---
 
 # Token Optimizer
 
-Cut token spend without cutting quality. Tokens are consumed by: (1) context
-you load, (2) output you generate, (3) redundant round-trips. Attack all three.
+Cut token spend **without cutting quality**. Any "saving" that would degrade
+architecture judgment, gate verification, root-cause analysis, or safety
+boundaries is vetoed outright — a cheap wrong answer costs more than an
+expensive right one.
 
-## 1. Context hygiene (input tokens)
+Two modes:
 
-- **Read narrow**: read the specific line ranges/symbols you need, not whole
-  files. Use search (grep/glob/indexed search) to locate first, then read the
-  hit ± a small window. Never read a file twice when the first read is still
-  in context.
-- **Delegate bulk reading**: when a question requires scanning many files,
-  spawn a subagent to read them and return a distilled answer — the raw file
-  contents never enter the main context. This is the single biggest lever on
-  long tasks.
-- **Externalize state**: for long-horizon work, keep plans/findings in files
-  (see [long-task-scheduler](../long-task-scheduler/SKILL.md)) instead of
-  re-deriving them in context each session.
-- **Lean CLAUDE.md**: project memory is loaded EVERY session. Keep it under
-  ~60 lines: conventions, commands, gotchas. Move long docs into skills or
-  `docs/` and link them — they'll be loaded on demand.
-- **Compact deliberately**: when a long session shifts topic, that's the cheap
-  moment to `/compact` (or start a fresh session) rather than dragging dead
-  context forward.
+- **Diagnose (default)** — read-only audit producing an evidence-backed waste
+  list with an estimated impact per item.
+- **Remediate (only on explicit user authorization)** — apply project-level
+  fixes; verify the project still loads/builds after each change.
 
-## 2. Output discipline (output tokens)
+## In-flight techniques (apply always)
 
-Output tokens cost ~5× input tokens. 
+### Input minimization
+- Read narrow: locate with indexed/glob search first, then read hit ± small
+  window. Never re-read what's already in context.
+- **Pass paths + line ranges, not pasted bodies** — especially never paste the
+  same large file into both an executor prompt and a reviewer prompt.
+- Delegate bulk reading to subagents that return distilled answers — raw file
+  contents never enter the main context. Biggest single lever on long tasks.
+- Externalize long-horizon state to disk
+  ([long-task-scheduler](../long-task-scheduler/SKILL.md)), don't re-derive.
 
-- Answer first, explain only if asked; no restating the question, no summary
-  of what you're "about to do" before doing it.
-- When editing files, edit the delta — never rewrite an entire file to change
-  three lines.
-- No defensive verbosity: don't paste large code blocks back to the user that
-  they can open themselves; reference `file:line` instead.
-- In subagent prompts, demand structured, minimal returns ("return a JSON list
-  of file:line findings, no prose").
+### Cache friendliness
+- Keep dispatch-prompt **stable prefixes byte-identical** (role, constraints,
+  source-of-truth list); put volatile content (IDs, timestamps) at the tail.
+- Batch same-type, same-tier, same-prefix tasks into one parallel wave to
+  maximize prompt-cache reuse; group interactive work into bursts (cache TTL
+  is ~5 min).
 
-## 3. Round-trip economy
+### Output discipline
+- Answer first; no restating, no pre-narration. Edit deltas, never rewrite
+  files. Reference `file:line` instead of pasting code back.
+- Demand lean subagent returns: "conclusion + evidence (file:line / command),
+  no prose".
 
-- **Batch independent tool calls** in one turn (parallel reads, parallel
-  searches) instead of serial call → wait → call.
-- **One good prompt beats three refinements**: when delegating, include the
-  goal, constraints, relevant paths, and expected output format up front.
-- **Validate an exemplar, then fan out**: for repetitive changes, perfect one
-  instance, then batch the rest mechanically (cheaper model, tighter prompt —
-  see [model-router](../model-router/SKILL.md)).
-- **Cache-aware pacing**: prompt cache TTL is ~5 minutes; long pauses between
-  turns in huge-context sessions re-read everything cold. Group interactive
-  work into bursts.
+### Dispatch economy
+- Route tiers first ([model-router](../model-router/SKILL.md)) — model choice
+  dominates cost, and a cheap model retried 4× out-spends one strong pass.
+- Before spawning N agents: could plain grep answer it? does each agent get a
+  scoped slice? is the return schema minimal?
+- Review only the current diff, never full re-scans. Check existing
+  findings/archives before re-investigating.
 
-## 4. Fan-out cost control
+## Project-level diagnostic (four layers)
 
-Subagents multiply cost. Before spawning N agents ask:
-- Could plain code/grep answer this instead of an agent?
-- Does each agent get a *scoped* slice (files, dirs) instead of "the repo"?
-- Is the return schema minimal?
-- Is a cheaper model sufficient per the routing rubric?
+For each finding give: **evidence (file/config/dispatch site) + impact
+estimate (high/mid/low) + concrete fix**. "Could be optimized" without
+evidence is not a finding.
 
-Rule of thumb: fan out for **breadth** (many independent reads), stay inline
-for **depth** (one hard chain of reasoning).
+### Layer 1 — Session/task (per-dispatch waste)
+1. Tier mismatch: T1 doing lookups/archiving, or T3 grinding a hard task into
+   repeated rework.
+2. Context redundancy: pasted large files, same file fed to multiple agents,
+   wholesale ingestion instead of targeted reads.
+3. Cache misses: volatile content breaking stable prefixes.
+4. Repeated labor: re-scouting settled conclusions, full-scan reviews,
+   same-tier same-prompt retries after failure.
 
-## Quick checklist
+### Layer 2 — Project config (fixed cost paid EVERY session)
+5. Always-injected files (CLAUDE.md / rule files): stale content, duplicated
+   sections, **historical changelogs** — the most common bloat source. Keep
+   "current conclusion + archive pointer", move history out.
+6. Agent `description` length: descriptions sit in the main context
+   permanently — compress to 1–2 trigger sentences; details belong in the
+   body (loaded only on invocation).
+7. Hook output verbosity; identical content re-injected every round.
+8. MCP mounts: tool schemas of unused servers are permanent context — unmount
+   or defer-load.
+9. Ignore rules: keep build artifacts / deps / generated files out of search.
 
-- [ ] CLAUDE.md < ~60 lines, no duplicated docs
-- [ ] Bulk reads delegated to subagents
-- [ ] File edits are deltas, not rewrites
-- [ ] Independent tool calls batched
-- [ ] Repetitive work: exemplar → cheap-model fan-out
-- [ ] Long-horizon state on disk, not in context
+### Layer 3 — Repo structure
+10. Single source of truth: the same fact maintained in N places makes agents
+    read and cross-check N times.
+11. Archives pasting code the repo already has (should cite `file:line`).
+12. Hot large files agents read often: split, or index/summarize.
+
+### Layer 4 — Process
+13. Dispatch/report templates: conclusion + evidence only, no boilerplate.
+14. Review scope: current changes only.
+15. Batching: same-type/tier/prefix tasks merged per wave.
+
+## Quality red lines (never trade for tokens)
+
+- No tier downgrades or context cuts on: architecture decisions, security/gate
+  judgments, invariant verification, irreversible-action decisions.
+- Never skip adversarial review, final-state re-reads, or gate verification to
+  save tokens.
+- If a saving risks silent failure, veto it and say why.
+
+## Diagnostic output format
+
+```markdown
+## Token Audit
+- Scope: <session / project config / full project>
+- Verdict: <healthy / N waste points / over-optimization risk found>
+
+### High-priority savings (no quality impact)
+- [evidence] current state → fix → impact (high/mid/low)
+
+### Tier adjustments
+- <task>: current T? → suggested T?, reason
+
+### Fixed-cost reductions (config / agents / MCP)
+### Context & cache improvements
+### ⚠️ Vetoed savings (would hurt quality)
+- <item> — why it must not be cut
+
+- Conclusion: ranked, directly executable fix list
+```
