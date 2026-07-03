@@ -34,3 +34,26 @@ templates. There is no build step; Markdown and JSON are the product.
 - `python3 -m json.tool < .claude-plugin/plugin.json` — validate JSON
 - Load locally: `claude --plugin-dir .` then check `/agents`, `/help` for the
   whet commands, and trigger a skill to confirm frontmatter parses.
+
+## Release process
+
+Users install from GitHub via `/plugin marketplace add mufasa007/whet`;
+updates are pulled from `main`, so **main must always be installable**.
+
+1. Develop on a feature branch; merge to `main` only after local validation
+   (`claude --plugin-dir .`).
+2. On release: bump `version` in `.claude-plugin/plugin.json` AND
+   `.claude-plugin/marketplace.json` (keep them identical), add a CHANGELOG.md
+   entry (SemVer rules at the top of that file), update README if
+   agents/skills/commands changed.
+3. Commit as `release: vX.Y.Z`, tag `vX.Y.Z`, push with `--tags`.
+4. Breaking changes (MAJOR) — renamed/removed agents, skills, commands,
+   ledger-layout changes — must include a "Migration" note in CHANGELOG.md
+   telling users what to update in their projects (e.g. old `.whet/plan/`
+   ledgers keep working; only new batches use the new layout).
+
+Compatibility rules:
+- Never rename an agent/skill/command in a MINOR/PATCH release — users'
+  muscle memory and project docs reference them.
+- Ledger files already on users' disks (`.whet/plan/**`) are user data: new
+  skill versions must keep reading old layouts or state the migration.
