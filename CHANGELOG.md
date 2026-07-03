@@ -8,6 +8,20 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - **MINOR** — new agents/skills/commands, new capabilities, template additions.
 - **PATCH** — wording fixes, prompt tuning, doc corrections.
 
+## [0.3.0] - 2026-07-04
+
+### Added
+- `enforce-model-tier` PreToolUse (Task/Agent) hook: while a `.whet/plan/`
+  batch ledger is active, dispatching a whet agent without an explicit
+  `model` parameter is blocked, so every dispatch makes a deliberate T1–T4
+  tier choice per model-router. `quick-scout` is exempt (frontmatter pins the
+  fast family); non-whet agents and projects without a ledger are unaffected.
+
+### Changed
+- `model-router`: documented the hook guard as mechanism #5.
+- `long-task-scheduler`: dispatch step now requires passing the chosen tier
+  as an explicit `model` parameter.
+
 ## [0.2.0] - 2026-07-04
 
 ### Added
