@@ -85,6 +85,10 @@ Default when unsure: **T2**. It is right for ~70% of engineering tasks.
 3. **Per-dispatch override**: the Agent tool's `model` parameter beats
    frontmatter — apply the rubric per delegated prompt.
 4. **Env defaults**: `ANTHROPIC_MODEL` / `ANTHROPIC_SMALL_FAST_MODEL`.
+5. **Hook guard**: while a `.whet/plan/` batch ledger is active, the
+   `enforce-model-tier` PreToolUse hook blocks dispatching a whet agent with
+   no explicit `model` — run the rubric, then redispatch with the chosen
+   family alias (quick-scout is exempt; its frontmatter pins the fast family).
 
 ## Pairing with token optimization
 

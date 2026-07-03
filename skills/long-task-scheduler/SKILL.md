@@ -61,7 +61,9 @@ data, leaking secrets, faking verification results.
    (frontend-dev / backend-dev / mobile-dev / devops-engineer / quick-scout…)
    with: task ID, precise inputs (paths + line ranges, not pasted file bodies),
    forbidden actions, acceptance criteria, verification commands, and a model
-   tier per [model-router](../model-router/SKILL.md). Executors report
+   tier per [model-router](../model-router/SKILL.md) — pass the chosen tier as
+   an explicit `model` parameter; while the ledger is active a PreToolUse hook
+   blocks whet-agent dispatches that omit it. Executors report
    "ready for review" — they never self-declare done.
 4. **Adversarial review** — every completed claim goes to **task-reviewer**
    (read-only, presumption of incompleteness). Only its explicit

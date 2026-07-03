@@ -81,6 +81,7 @@ in each release; breaking releases (MAJOR) always include a migration note.
 
 - **SessionStart** — detects the latest `.whet/plan/` batch ledger and prompts resumption.
 - **PreToolUse (Write/Edit)** — blocks accidental writes to sensitive files (`.env`, keys, credentials).
+- **PreToolUse (Task/Agent)** — while a batch ledger is active, blocks dispatching a whet agent without an explicit `model`, so every dispatch makes a deliberate tier choice per model-router (quick-scout is exempt — it pins the fast family).
 
 ## How the pieces fit together
 
@@ -162,7 +163,7 @@ Issues and PRs are welcome. Before opening a PR:
 
 - **专业 Agent（11 个）**：产品经理、架构师、UI/UX 设计师、前端、后端、移动端、测试、运维、代码评审、**任务审核器**（对抗式完成度审计，把关每个阶段提交）、**轻量执行员**（haiku 档，跑小而明确的任务）。
 - **长程任务调度**（`long-task-scheduler`）：每个长程任务在 `.whet/plan/{日期}-{序号}-{简名}/` 下建立独立台账（执行计划 / 问题列表 / 进度记录 / 决策归档）；按依赖与**冲突域**串并行派发、执行与审核分离、一次性前置授权、重大决策自主决断并归档待事后人工审核、审核通过按阶段自动提交——启动后一次性跑完，执行期零人工介入。
-- **自动模型选择**（`model-router`）：平台无关的 **T1~T4 能力档位抽象**（强推理/均衡/快速/极限），运行时按平台实际可选模型动态落地，不硬编码模型名；从最低够用档起步，凭证据升档，升档决策留痕。
+- **自动模型选择**（`model-router`）：平台无关的 **T1~T4 能力档位抽象**（强推理/均衡/快速/极限），运行时按平台实际可选模型动态落地，不硬编码模型名；从最低够用档起步，凭证据升档，升档决策留痕。长程任务台账激活期间，配套 hook 会硬拦截未显式指定 `model` 的 whet agent 派发，确保每次派发都是有意识的档位选择。
 - **Token 消耗优化**（`token-optimizer`）：会话内手法（输入最小化、缓存友好的稳定前缀、输出纪律）+ **项目级四层诊断**（会话/常驻配置/仓库结构/流程），并设质量红线——损害判断质量的"节省"一律否决。
 - **规格驱动开发**（`spec-workflow`）：需求 → 设计 → 任务三段门控流程，规格随代码版本化在 `spec/`。
 
