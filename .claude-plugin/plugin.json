@@ -1,0 +1,21 @@
+{
+  "name": "whet",
+  "displayName": "Whet",
+  "description": "A professional agent team for Claude Code with long-horizon task scheduling, automatic model selection, token optimization, and spec-driven development.",
+  "version": "0.1.0",
+  "author": {
+    "name": "mufasa007",
+    "url": "https://github.com/mufasa007"
+  },
+  "homepage": "https://github.com/mufasa007/whet",
+  "repository": "https://github.com/mufasa007/whet",
+  "license": "MIT",
+  "keywords": [
+    "agents",
+    "skills",
+    "spec-driven-development",
+    "task-scheduler",
+    "model-routing",
+    "token-optimization"
+  ]
+}

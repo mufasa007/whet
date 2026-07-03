@@ -1,0 +1,19 @@
+{
+  "name": "whet",
+  "owner": {
+    "name": "mufasa007",
+    "url": "https://github.com/mufasa007"
+  },
+  "metadata": {
+    "description": "Whet marketplace — professional agents, skills, and workflows for Claude Code.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "whet",
+      "source": "./",
+      "description": "Professional agent team with long-horizon task scheduling, automatic model selection, token optimization, and spec-driven development.",
+      "category": "workflow"
+    }
+  ]
+}
