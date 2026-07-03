@@ -2,12 +2,43 @@
 
 > Sharpen Claude Code into a full product team.
 
+[![Version](https://img.shields.io/badge/version-0.2.0-blue)](./CHANGELOG.md)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
+[![Claude Code Plugin](https://img.shields.io/badge/Claude%20Code-plugin-orange)](https://docs.anthropic.com/en/docs/claude-code)
+
 **Whet** is a Claude Code plugin that ships a professional agent team plus the
 workflows that make them effective on real projects: long-horizon task
 orchestration, automatic model selection, token-consumption optimization, and
 spec-driven development.
 
 [English](#quick-start) | [中文](#中文说明)
+
+## Quick start
+
+```bash
+# In Claude Code
+/plugin marketplace add mufasa007/whet
+/plugin install whet@whet
+```
+
+Or clone and use as a local plugin:
+
+```bash
+git clone https://github.com/mufasa007/whet.git
+claude --plugin-dir ./whet
+```
+
+### Updating
+
+```bash
+/plugin marketplace update whet   # refresh the marketplace listing
+/plugin update whet@whet          # update the installed plugin
+```
+
+Updates take effect in **new sessions**. Your project data — `.whet/plan/**`
+ledgers and `spec/**` documents — lives in your own repository and is never
+touched by plugin updates. See [CHANGELOG.md](./CHANGELOG.md) for what changed
+in each release; breaking releases (MAJOR) always include a migration note.
 
 ## What's inside
 
@@ -51,21 +82,6 @@ spec-driven development.
 - **SessionStart** — detects the latest `.whet/plan/` batch ledger and prompts resumption.
 - **PreToolUse (Write/Edit)** — blocks accidental writes to sensitive files (`.env`, keys, credentials).
 
-## Quick start
-
-```bash
-# In Claude Code
-/plugin marketplace add mufasa007/whet
-/plugin install whet@whet
-```
-
-Or clone and use as a local plugin:
-
-```bash
-git clone https://github.com/mufasa007/whet.git
-claude --plugin-dir ./whet
-```
-
 ## How the pieces fit together
 
 ```
@@ -107,8 +123,32 @@ whet/
 ├── commands/             # /whet:* slash commands
 ├── hooks/                # session & safety hooks
 ├── spec/templates/       # requirements / design / tasks templates
-└── CLAUDE.md
+├── CHANGELOG.md          # release history (SemVer)
+└── CLAUDE.md             # dev guide & release process
 ```
+
+## Versioning & releases
+
+Whet follows [SemVer](https://semver.org/):
+
+- **MAJOR** — breaking: rename/remove an agent, skill, or command; change the
+  `.whet/plan/` ledger layout; tighten hook blocking rules. Always ships with
+  a migration note in the changelog.
+- **MINOR** — new agents/skills/commands and capabilities.
+- **PATCH** — prompt tuning, wording and doc fixes.
+
+`main` is the distribution channel and is always installable; releases are
+tagged `vX.Y.Z`. Contributor workflow lives in [CLAUDE.md](./CLAUDE.md).
+
+## Contributing
+
+Issues and PRs are welcome. Before opening a PR:
+
+1. Validate locally with `claude --plugin-dir .` (check `/agents` and `/help`).
+2. `bash -n hooks/scripts/*.sh` and JSON-validate the manifests.
+3. Follow the conventions in [CLAUDE.md](./CLAUDE.md) — notably: agent
+   `description` states *when* to invoke; never hardcode model names (use
+   T1–T4 tiers); keep every document token-lean.
 
 ## License
 
@@ -134,6 +174,17 @@ whet/
 /plugin install whet@whet
 ```
 
+### 更新
+
+```bash
+/plugin marketplace update whet   # 刷新市场清单
+/plugin update whet@whet          # 更新已安装插件
+```
+
+更新在**新会话**中生效。你项目里的 `.whet/plan/**` 台账与 `spec/**` 规格属于
+用户数据，插件更新不会改动它们。各版本变更见 [CHANGELOG.md](./CHANGELOG.md)；
+破坏性版本（MAJOR）必附迁移说明。
+
 ### 常用命令
 
 - `/whet:spec <功能描述>` — 为功能启动规格驱动开发
@@ -141,3 +192,9 @@ whet/
 - `/whet:resume` — 从最新台账断点继续
 - `/whet:review [基准分支]` — QA + 代码评审并行审查当前改动
 - `/whet:optimize [范围]` — 项目级 token 消耗只读审计
+
+### 版本策略
+
+遵循 SemVer：**MAJOR** = 破坏性（重命名/删除 agent、skill、command，或改台账
+结构，必附迁移说明）；**MINOR** = 新增能力；**PATCH** = 提示词与文档修正。
+`main` 分支即分发渠道，始终保持可安装；发布打 `vX.Y.Z` 标签。
