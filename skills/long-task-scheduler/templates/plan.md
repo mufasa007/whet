@@ -10,7 +10,9 @@
 - One continuous run: zero human prompts mid-run; clarification and
   authorization are front-loaded, review is post-run via issues.md.
 - Orchestrator dispatches only — never implements or reviews itself.
-- Execute → adversarial review → commit, per phase. No review, no commit.
+- Orchestrator re-runs the acceptance gate and checks tree integrity before
+  review; an executor's "green" prose is a claim, not proof.
+- Execute → verify → adversarial review → commit, per phase. No review, no commit.
 - Conflicting tasks serial, disjoint tasks parallel.
 - Dispatch by model tier (T1–T4), lowest sufficient tier first, escalate on
   failure. T4 requires user consent (pre-authorized or not at all).
@@ -19,11 +21,14 @@
 ## 0.1 One-Time Pre-Authorization List
 
 <!-- EVERY irreversible external action and writable target this effort needs.
-     Confirmed by the user before start. Out-of-list = route around + record. -->
+     Confirmed by the user before start. Out-of-list = route around + record.
+     Record the EXACT target (branch / remote / env) and whether it triggers a
+     deploy/CI pipeline — "push authorized" is not enough if one branch is safe
+     and another ships to production. -->
 
-| # | Action / target | Scope | Authorized |
-|---|---|---|---|
-| A1 | | | ☐ |
+| # | Action | Exact target (branch / remote / env) | Triggers deploy/CI? | Scope | Authorized |
+|---|---|---|---|---|---|
+| A1 | | | | | ☐ |
 
 ## 0.2 Key References
 

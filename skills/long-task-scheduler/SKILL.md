@@ -64,12 +64,25 @@ data, leaking secrets, faking verification results.
    tier per [model-router](../model-router/SKILL.md) — pass the chosen tier as
    an explicit `model` parameter; while the ledger is active a PreToolUse hook
    blocks whet-agent dispatches that omit it. Executors report
-   "ready for review" — they never self-declare done.
-4. **Adversarial review** — every completed claim goes to **task-reviewer**
-   (read-only, presumption of incompleteness). Only its explicit
-   "commit allowed" verdict unlocks a commit.
+   "ready for review" — they never self-declare done. Record each dispatch's
+   tier, actual model, and (once it finishes) reported token usage into
+   `progress.md` — a resumed session cannot recover a prior subagent's usage,
+   so it is captured now or lost.
+4. **Verify, then adversarial-review** — the orchestrator first re-runs the
+   acceptance gate itself and checks tree integrity (`git status` / `git diff` /
+   reflog: no stray reverts, stashes, or out-of-scope edits). An executor's
+   prose ("BUILD SUCCESS", "all green", "the other module is still broken") is a
+   claim, not proof — stale baselines and mistaken self-reports happen, so the
+   load-bearing assertions get machine-confirmed, not trusted. Only verified
+   output advances to **task-reviewer** (read-only, presumption of
+   incompleteness). Only its explicit "commit allowed" verdict unlocks a commit.
+   The orchestrator may itself supply the verification pass for low-risk or
+   already-substantiated claims; capability-sensitive red-lines (silent data
+   loss, security, invariant breaks) still get an independent adversarial pass.
 5. **Converge**: pass → update ledger docs → commit this phase (message
-   includes phase ID, scope limited to this phase's changes) → next batch.
+   includes phase ID, scope limited to this phase's changes, pushed only to the
+   pre-authorized target — never a deploy-triggering branch unless the pre-auth
+   list says so) → next batch.
    Fail-but-continuable → record the gap in `issues.md`, redispatch (escalate
    one tier if it's a repeat failure). External blocker → archive it, mark
    "needs human review", advance everything not depending on it.
@@ -95,6 +108,17 @@ Tech choices, trade-offs, interpretation calls encountered mid-run:
   criterion** and a **recovery point** (what must be true to resume here).
 - Executors verify their own work (build/tests) AND re-read final state
   independently — tool success messages are not proof.
+- **Gates mask each other.** A full quality gate (lint → static analysis →
+  coverage → tests) fails one layer at a time: fixing the first unmasks the
+  next. When acceptance is "gate fully green" and the codebase hasn't run the
+  full gate before, scope for several fix→re-run rounds, not one, and name the
+  known gate stages up front so the layering is expected, not a surprise.
+- **Edits made only to satisfy a gate are prime regression sites.** A change
+  that silences a linter or static-analysis rule (null→empty-collection,
+  broadened/narrowed catch, signature tweak) can alter behavior while the gate
+  goes green — the green gate then hides the regression. Treat these as
+  semantic changes: state the behavior-equivalence claim explicitly and make the
+  reviewer check callers, not just that the rule passed.
 - Nesting limits are handled honestly: if this skill runs where subagents
   can't spawn subagents, degrade to a **dispatch planner** — output the exact
   batch/prompt/tier list for the top-level session to execute. Never claim
@@ -113,6 +137,12 @@ Tech choices, trade-offs, interpretation calls encountered mid-run:
 - ❌ Plan state living only in conversation.
 - ❌ "Done" without running the acceptance check, or committing without a
   reviewer verdict.
+- ❌ Trusting an executor's "all green" prose without re-running the gate — or
+  a reviewer's "pass" without spot-checking its load-bearing evidence.
+- ❌ Pushing a phase commit to a deploy-triggering branch the pre-auth list
+  never named.
+- ❌ Losing per-dispatch model/token usage by not recording it the round it
+  completes — it is unrecoverable next session.
 - ❌ Pausing mid-run to ask something the pre-auth list already answers —
   or executing something it doesn't.
 - ❌ Parallel-dispatching tasks that share a conflict domain.

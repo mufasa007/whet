@@ -8,7 +8,8 @@ following goal:
 
 1. Clarify goal, constraints, concurrency, and collect the **one-time
    pre-authorization list** (every irreversible action / writable target this
-   effort needs) — this is the only point where you may ask me questions.
+   effort needs — with the exact branch/remote/env and whether it triggers a
+   deploy) — this is the only point where you may ask me questions.
 2. Create `.whet/plan/{YYYYMMDD}-{NNN}-{slug}/` with plan.md, issues.md, and
    progress.md from the skill's templates; decompose into phases with conflict
    domains, acceptance criteria, recovery points, and model tiers.
