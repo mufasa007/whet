@@ -124,6 +124,7 @@ whet/
 ├── commands/             # /whet:* slash commands
 ├── hooks/                # session & safety hooks
 ├── spec/templates/       # requirements / design / tasks templates
+├── scripts/              # repo maintenance (regression-test.sh)
 ├── CHANGELOG.md          # release history (SemVer)
 └── CLAUDE.md             # dev guide & release process
 ```
@@ -146,7 +147,8 @@ tagged `vX.Y.Z`. Contributor workflow lives in [CLAUDE.md](./CLAUDE.md).
 Issues and PRs are welcome. Before opening a PR:
 
 1. Validate locally with `claude --plugin-dir .` (check `/agents` and `/help`).
-2. `bash -n hooks/scripts/*.sh` and JSON-validate the manifests.
+2. `bash scripts/regression-test.sh` — self-test all components; then
+   `bash -n hooks/scripts/*.sh` and JSON-validate the manifests.
 3. Follow the conventions in [CLAUDE.md](./CLAUDE.md) — notably: agent
    `description` states *when* to invoke; never hardcode model names (use
    T1–T4 tiers); keep every document token-lean.
