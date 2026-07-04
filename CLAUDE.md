@@ -11,6 +11,8 @@ templates. There is no build step; Markdown and JSON are the product.
 - `commands/*.md` — slash commands, exposed as `/whet:<file-stem>`
 - `hooks/hooks.json` + `hooks/scripts/` — hook config and shell scripts
 - `spec/templates/` — requirements/design/tasks templates used by spec-workflow
+- `scripts/` — repo maintenance scripts (not loaded by the plugin);
+  `regression-test.sh` self-tests every component
 - `.claude-plugin/plugin.json` — plugin manifest (bump `version` on release)
 
 ## Conventions
@@ -30,6 +32,10 @@ templates. There is no build step; Markdown and JSON are the product.
 
 ## Validating changes
 
+- `bash scripts/regression-test.sh` — full self-test: hook-script behavior,
+  agent/skill frontmatter conventions, JSON manifests + version consistency,
+  command/spec-template presence. Read-only; scratch output goes to `tmp/`
+  (gitignored) and is cleaned up. Run before every release.
 - `bash -n hooks/scripts/*.sh` — syntax-check hook scripts
 - `python3 -m json.tool < .claude-plugin/plugin.json` — validate JSON
 - Load locally: `claude --plugin-dir .` then check `/agents`, `/help` for the
