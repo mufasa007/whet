@@ -3,7 +3,7 @@
 # 覆盖:3 个 hook 脚本的黑盒行为 + agents/skills frontmatter 约定 +
 #       JSON 清单与版本一致性 + commands/spec 模板存在性。
 # 只读校验,不改任何仓库文件;临时产物写入 ./tmp/selftest(tmp 已被 .gitignore),跑完自动清理。
-set -uo pipefail
+set -euo pipefail
 cd "$(dirname "$0")/.."   # 仓库根(脚本位于 scripts/)
 ROOT="$PWD"
 TMP="$ROOT/tmp/selftest"
@@ -15,7 +15,7 @@ no(){ FAIL=$((FAIL+1)); FAILED_CASES+=("$1"); printf '  ✗ %s\n' "$1"; }
 # check "名称" 期望码 -- 命令...
 run_hook(){ # $1 脚本  $2 期望exit  $3 stdin  $4 projectdir  $5 名称
   local out rc errfile="$TMP/hook_err_$$.txt"
-  out="$(printf '%s' "$3" | CLAUDE_PROJECT_DIR="$4" bash "$1" 2>"$errfile")"; rc=$?
+  out="$(printf '%s' "$3" | CLAUDE_PROJECT_DIR="$4" bash "$1" 2>"$errfile")" && rc=0 || rc=$?
   if [[ "$rc" == "$2" ]]; then
     ok "$5 (exit $rc)"
   else
@@ -45,8 +45,8 @@ run_hook "$H" 0 '{"tool_input":{"subagent_type":"backend-dev","prompt":"x"}}'   
 run_hook "$H" 0 ''                                                                              "$LEDGER" "空输入 → 放行"
 run_hook "$H" 0 'not-json-at-all'                                                               "$LEDGER" "非法JSON → 放行"
 run_hook "$H" 2 '{"tool_input":{"subagent_type":"architect","prompt":"set \"model\": \"sonnet\" later"}}' "$LEDGER" "prompt内伪造model字样 → 仍拦截"
-# 全部 10 个 inherit agent 无 model 均应拦截
-for a in architect backend-dev frontend-dev mobile-dev devops-engineer qa-tester code-reviewer task-reviewer product-manager uiux-designer; do
+# 全部 14 个 inherit agent 无 model 均应拦截
+for a in architect backend-dev frontend-dev mobile-dev devops-engineer qa-tester code-reviewer task-reviewer product-manager uiux-designer security-engineer data-engineer tech-writer; do
   run_hook "$H" 2 "{\"tool_input\":{\"subagent_type\":\"$a\",\"prompt\":\"x\"}}" "$LEDGER" "台账+${a} 无model → 拦截"
 done
 # JSON 边缘 case: 验证 sed 解析边界行为
@@ -261,7 +261,7 @@ echo
 echo "════════════════════════════════════════════"
 echo " 8. commands / spec 模板存在性"
 echo "════════════════════════════════════════════"
-for c in optimize plan resume review spec; do
+for c in optimize plan resume review spec status; do
   [[ -f "$ROOT/commands/$c.md" ]] && ok "command /whet:$c 存在" || no "command $c 缺失"
 done
 for t in requirements design tasks; do

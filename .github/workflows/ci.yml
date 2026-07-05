@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: ['*']
+  pull_request:
+    branches: ['*']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run regression tests
+        run: bash scripts/regression-test.sh
+
+      - name: Shell script syntax check
+        run: bash -n hooks/scripts/*.sh
+
+      - name: JSON validation
+        run: |
+          for f in .claude-plugin/*.json hooks/hooks.json; do
+            python3 -m json.tool < "$f" > /dev/null
+          done

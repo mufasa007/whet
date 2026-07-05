@@ -10,6 +10,24 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-06
+
+### Added
+- `security-engineer` agent — security audits, threat modeling, penetration testing, dependency vulnerability scanning.
+- `data-engineer` agent — data modeling, SQL optimization, ETL design, schema migration, data quality validation.
+- `tech-writer` agent — documentation writing, API docs, release notes, README maintenance.
+- `/whet:status` command — show current state of all Whet artifacts (batch ledgers and specs) in a compact dashboard.
+- `.github/workflows/ci.yml` — GitHub Actions CI workflow running regression tests, shell syntax checks, and JSON validation on every push and PR.
+- `.editorconfig` — cross-platform editor configuration for consistent formatting.
+
+### Fixed
+- `hooks/scripts/session-ledger.sh`: ledger detection now uses `${CLAUDE_PROJECT_DIR:-.}/.whet/plan` for correct behavior regardless of working directory.
+- `docs/guide.zh-CN.html`: added dark mode (`prefers-color-scheme: dark`) and responsive mobile navigation (hamburger menu toggle).
+- `README.md`: Chinese section now mirrors the English "How the pieces fit together" architecture diagram and "Repository layout" section.
+
+### Changed
+- `scripts/regression-test.sh`: `set -uo pipefail` → `set -euo pipefail` for stricter error handling; `run_hook` uses `&& rc=0 || rc=$?` pattern to avoid premature exit.
+
 ## [0.3.2] - 2026-07-06
 
 ### Fixed

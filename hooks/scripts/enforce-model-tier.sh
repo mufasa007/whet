@@ -24,7 +24,7 @@ MODEL="$(printf '%s' "$INPUT" | sed -n 's/.*"model"[[:space:]]*:[[:space:]]*"\([
 SUBAGENT="${SUBAGENT##*:}"
 
 case "$SUBAGENT" in
-  architect|backend-dev|frontend-dev|mobile-dev|devops-engineer|qa-tester|code-reviewer|task-reviewer|product-manager|uiux-designer)
+  architect|backend-dev|frontend-dev|mobile-dev|devops-engineer|qa-tester|code-reviewer|task-reviewer|product-manager|uiux-designer|security-engineer|data-engineer|tech-writer)
     if [[ -z "$MODEL" ]]; then
       {
         echo "[model-tier guard] Dispatching ${SUBAGENT} without an explicit \`model\` while a"
