@@ -8,7 +8,30 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - **MINOR** — new agents/skills/commands, new capabilities, template additions.
 - **PATCH** — wording fixes, prompt tuning, doc corrections.
 
-## [0.3.0] - 2026-07-04
+# Changelog
+
+All notable changes to Whet are documented here.
+Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
+
+- **MAJOR** — breaking: rename/remove an agent, skill, or command; change the
+  `.whet/plan/` ledger layout; tighten hook blocking rules.
+- **MINOR** — new agents/skills/commands, new capabilities, template additions.
+- **PATCH** — wording fixes, prompt tuning, doc corrections.
+
+## [Unreleased]
+
+## [0.3.1] - 2026-07-06
+
+### Fixed
+- `README.md`: corrected version badge from 0.2.0 to 0.3.1 (was stale since v0.3.0 release).
+- `hooks/scripts/protect-sensitive.sh`: extended sensitive-file coverage to include `.env.local`, `id_ecdsa`, `*.token`, `*.secret`, `.secrets`, `serviceAccountKey.json`, `terraform.tfstate`, `*.tfvars`, `.netrc`, `.git-credentials`, `.htpasswd`, and path-based matches for `/.aws/`, `/.kube/`, `/.docker/`, `/.ssh/`, `/.gnupg/`, `/.terraform/`.
+- `hooks/scripts/session-ledger.sh`: switched from relative `.whet/plan` to `${CLAUDE_PROJECT_DIR:-.}/.whet/plan` so ledger detection works regardless of working directory.
+- `agents/task-reviewer.md`: removed `Bash` from `tools` list to align with its strictly read-only audit mandate; added explicit rule forbidding write-capable tools.
+- `commands/resume.md`: added optional `[batch-id]` argument so users can resume a specific batch ledger instead of only the latest one.
+- `commands/review.md` & `commands/optimize.md`: replaced bash-style parameter expansion (`${ARGUMENTS:+...}`, `${ARGUMENTS:-...}`) with safe, explicit descriptions to avoid compatibility issues with Claude Code's command parser.
+
+### Changed
+- `scripts/regression-test.sh`: added README badge version check, agent-list sync validation (`agents/*.md` ↔ `enforce-model-tier.sh`), and 18 new `protect-sensitive` + 3 new `enforce-model-tier` JSON edge-case test cases (total 79 assertions, all passing).
 
 ### Added
 - `enforce-model-tier` PreToolUse (Task/Agent) hook: while a `.whet/plan/`

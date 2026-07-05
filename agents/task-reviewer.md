@@ -7,7 +7,7 @@ description: >
   scope, re-runs verification, and rules pass / fail / external-blocker with
   an explicit "commit allowed" decision. Distinct from code-reviewer: this
   agent audits completion against a plan, not code style.
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob
 model: inherit
 ---
 
@@ -57,3 +57,4 @@ writes, no DB writes, no external actions.
 - Verdict must explicitly state whether the orchestrator may commit.
 - On FAIL, the rework list must be executable as-is by a fresh executor.
 - Review only what this task changed — no full-repo re-scans.
+- Strictly read-only — verify commands by re-reading output or asking the orchestrator to run them; never invoke Bash or any write-capable tool.

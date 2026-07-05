@@ -39,6 +39,10 @@ run_hook "$H" 2 '{"tool_input":{"subagent_type":"architect","prompt":"set \"mode
 for a in architect backend-dev frontend-dev mobile-dev devops-engineer qa-tester code-reviewer task-reviewer product-manager uiux-designer; do
   run_hook "$H" 2 "{\"tool_input\":{\"subagent_type\":\"$a\",\"prompt\":\"x\"}}" "$LEDGER" "台账+${a} 无model → 拦截"
 done
+# JSON 边缘 case: 验证 sed 解析边界行为
+run_hook "$H" 0 '{"tool_input":{"model":"haiku","subagent_type":"backend-dev"}}'                                 "$LEDGER" "字段重排: model已指定 → 放行"
+run_hook "$H" 2 '{"tool_input":{"subagent_type":"backend-dev","prompt":"use \"model\":\"haiku\""}}'               "$LEDGER" "prompt内含转义引号 → 拦截(sed误匹配)"
+run_hook "$H" 2 '{"tool_input":{"subagent_type":"backend-dev","prompt":"'"$(python3 -c 'print("x"*10000)')"'"}}' "$LEDGER" "超大payload无model → 拦截"
 
 echo
 echo "════════════════════════════════════════════"
@@ -54,6 +58,26 @@ run_hook "$H" 0 '{"file_path":"/x/.env.example"}'      "$TMP" ".env.example → 
 run_hook "$H" 0 '{"file_path":"/x/config.yaml"}'       "$TMP" "普通文件 → 放行"
 run_hook "$H" 0 '{"file_path":"/x/README.md"}'         "$TMP" "README.md → 放行"
 run_hook "$H" 0 '{}'                                    "$TMP" "无file_path → 放行"
+# 扩展敏感文件覆盖测试
+run_hook "$H" 2 '{"file_path":"/x/.env.local"}'        "$TMP" ".env.local → 拦截"
+run_hook "$H" 2 '{"file_path":"/x/id_ecdsa"}'          "$TMP" "id_ecdsa → 拦截"
+run_hook "$H" 2 '{"file_path":"/x/app.token"}'         "$TMP" "*.token → 拦截"
+run_hook "$H" 2 '{"file_path":"/x/app.secret"}'        "$TMP" "*.secret → 拦截"
+run_hook "$H" 2 '{"file_path":"/x/.secrets"}'          "$TMP" ".secrets → 拦截"
+run_hook "$H" 2 '{"file_path":"/x/serviceAccountKey.json"}' "$TMP" "serviceAccountKey.json → 拦截"
+run_hook "$H" 2 '{"file_path":"/x/terraform.tfstate"}' "$TMP" "terraform.tfstate → 拦截"
+run_hook "$H" 2 '{"file_path":"/x/vars.tfvars"}'       "$TMP" "*.tfvars → 拦截"
+run_hook "$H" 2 '{"file_path":"/x/.netrc"}'            "$TMP" ".netrc → 拦截"
+run_hook "$H" 2 '{"file_path":"/x/.git-credentials"}'  "$TMP" ".git-credentials → 拦截"
+run_hook "$H" 2 '{"file_path":"/x/.htpasswd"}'         "$TMP" ".htpasswd → 拦截"
+run_hook "$H" 2 '{"file_path":"/home/user/.aws/credentials"}' "$TMP" ".aws/credentials → 拦截(路径)"
+run_hook "$H" 2 '{"file_path":"/home/user/.kube/config"}' "$TMP" ".kube/config → 拦截(路径)"
+run_hook "$H" 2 '{"file_path":"/home/user/.docker/config.json"}' "$TMP" ".docker/config.json → 拦截(路径)"
+run_hook "$H" 2 '{"file_path":"/home/user/.ssh/authorized_keys"}' "$TMP" ".ssh/authorized_keys → 拦截(路径)"
+run_hook "$H" 2 '{"file_path":"/home/user/.gnupg/secring.gpg"}' "$TMP" ".gnupg/secring.gpg → 拦截(路径)"
+run_hook "$H" 2 '{"file_path":"/home/user/.terraform/terraform.tfstate"}' "$TMP" ".terraform/terraform.tfstate → 拦截(路径)"
+run_hook "$H" 0 '{"file_path":"/x/.env.local.example"}'  "$TMP" ".env.local.example → 放行(模板)"
+run_hook "$H" 2 '{"file_path":"/x/.aws/config.yaml"}'    "$TMP" ".aws/config.yaml → 拦截(路径)"
 
 echo
 echo "════════════════════════════════════════════"
@@ -113,6 +137,47 @@ for evs in h["hooks"].values():
             if m and not os.path.exists(os.path.join(root,"hooks/scripts",m.group(1))):
                 miss.append(m.group(1))
 print("MISSING:"+",".join(miss) if miss else "OK")
+PY
+
+echo
+echo "════════════════════════════════════════════"
+echo " 5.5 README 版本徽章一致性"
+echo "════════════════════════════════════════════"
+BADGE_VER="$(grep -oE 'version-[0-9]+\.[0-9]+\.[0-9]+' "$ROOT/README.md" | head -n1 | cut -d- -f2)"
+[[ "$PV" == "$BADGE_VER" ]] && ok "README badge 版本与 plugin.json 一致 ($BADGE_VER)" || no "README badge=$BADGE_VER 与 plugin=$PV 不一致"
+
+echo
+echo "════════════════════════════════════════════"
+echo " 5.6 agent 列表硬编码同步检查"
+echo "════════════════════════════════════════════"
+python3 - "$ROOT" <<'PY'
+import os,sys,re
+root=sys.argv[1]; agents_dir=os.path.join(root,"agents")
+expected=set()
+for fn in sorted(os.listdir(agents_dir)):
+    if not fn.endswith(".md"): continue
+    t=open(os.path.join(agents_dir,fn)).read()
+    m=re.match(r'^---\n(.*?)\n---',t,re.S)
+    if not m: continue
+    nm=re.search(r'^name:\s*(\S+)',m.group(1),re.M)
+    if nm: expected.add(nm.group(1))
+expected.discard("quick-scout")
+hook=open(os.path.join(root,"hooks/scripts/enforce-model-tier.sh")).read()
+hook_agents=set()
+for line in hook.splitlines():
+    stripped=line.strip()
+    if stripped.endswith(")") and "|" in stripped:
+        stripped=stripped[:-1]
+        hook_agents=set(a.strip() for a in stripped.split("|") if a.strip())
+        break
+p=f=0
+def ok(m): global p; p+=1; print(f"  ✓ {m}")
+def no(m): global f; f+=1; print(f"  ✗ {m}")
+for a in sorted(expected):
+    (ok if a in hook_agents else no)(f"agents/{a}.md 在 case 语句中")
+for a in sorted(hook_agents):
+    (ok if a in expected else no)(f"case 中的 {a} 有对应 agents/*.md")
+print(f"__SYNC__ {p} {f}")
 PY
 
 echo

@@ -3,7 +3,12 @@ description: Run a full team review of the current changes (QA + code review)
 argument-hint: "[base branch, default: default branch]"
 ---
 
-Run a team review of the current branch's changes${ARGUMENTS:+ against $ARGUMENTS}:
+Run a team review of the current branch's changes.
+
+If a base branch is provided, scope the diff to commits ahead of that branch;
+otherwise review staged + unstaged changes only.
+
+Base: $ARGUMENTS
 
 1. Determine the diff scope with git (staged + unstaged + commits ahead of the
    base branch).

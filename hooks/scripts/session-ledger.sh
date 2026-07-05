@@ -3,7 +3,7 @@
 # surface it so the session resumes from the ledger instead of from memory.
 set -euo pipefail
 
-PLAN_ROOT=".whet/plan"
+PLAN_ROOT="${CLAUDE_PROJECT_DIR:-.}/.whet/plan"
 
 if [[ -d "$PLAN_ROOT" ]]; then
   # Latest batch dir by name ({YYYYMMDD}-{NNN}-{slug} sorts chronologically).
