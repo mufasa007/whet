@@ -25,6 +25,9 @@ stale fast. Plans and dispatch prompts always use abstract tiers:
 | **T3 fast** | quick, cheap, fine for narrow deterministic work | lookups, read-only scouting, archiving, summaries, template filling, mechanical edits | low |
 | **T4 extreme** | beyond T1; **disabled by default, needs user consent** | rare unsolvable-at-T1 problems, major decision escalation | highest |
 
+T4 authorization: recorded in the long-task-scheduler pre-authorization list as
+`Tier escalation authorized up to: T4`.
+
 ## Runtime model-selection protocol (run before each dispatch)
 
 1. **Probe availability** — read the model list the current tool actually
@@ -35,8 +38,9 @@ stale fast. Plans and dispatch prompts always use abstract tiers:
    balanced / fast-light using family positioning, reasoning support, context
    length, and price tier.
 3. **Map tiers** — T1 → strongest available reasoning model; T2 → balanced;
-   T3 → fast-light. If inheriting the session model already satisfies the
-   target tier, omit the model parameter.
+   T3 → fast-light. `haiku` and similar family aliases resolve to T3 (fast); if the
+   platform does not provide `haiku`, downgrade to the nearest available T3 model.
+   If inheriting the session model already satisfies the target tier, omit the model parameter.
 4. **Stay evolution-proof** — when the platform ships a stronger flagship,
    it joins the T1 candidates automatically; retired models map down to the
    nearest surviving tier.
@@ -80,11 +84,13 @@ Default when unsure: **T2**. It is right for ~70% of engineering tasks.
 1. **Session model**: `/model` or `claude --model <model>`.
 2. **Subagent frontmatter**: `model:` in an agent's `.md`. Whet agents default
    to `inherit` (T1/T2 roles ride the session flagship); only intentionally
-   cheap agents pin a family alias (e.g. `quick-scout` pins the fast family)
-   — aliases resolve to the family's latest generation, so they don't rot.
+   cheap agents pin a family alias (e.g. `quick-scout` pins `haiku` — the fast
+   family alias mapping to T3). If the platform does not provide `haiku`,
+   downgrade to the nearest available T3 (fast) model. Aliases resolve to the
+   family's latest generation, so they don't rot.
 3. **Per-dispatch override**: the Agent tool's `model` parameter beats
    frontmatter — apply the rubric per delegated prompt.
-4. **Env defaults**: `ANTHROPIC_MODEL` / `ANTHROPIC_SMALL_FAST_MODEL`.
+4. **Env defaults**: platform-specific model env vars (e.g., `ANTHROPIC_MODEL` on Claude Code, `OPENAI_MODEL` on OpenAI platforms).
 5. **Hook guard**: while a `.whet/plan/` batch ledger is active, the
    `enforce-model-tier` PreToolUse hook blocks dispatching a whet agent with
    no explicit `model` — run the rubric, then redispatch with the chosen

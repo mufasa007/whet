@@ -2,7 +2,7 @@
 
 > Sharpen Claude Code into a full product team.
 
-[![Version](https://img.shields.io/badge/version-0.3.1-blue)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.3.2-blue)](./CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 [![Claude Code Plugin](https://img.shields.io/badge/Claude%20Code-plugin-orange)](https://docs.anthropic.com/en/docs/claude-code)
 

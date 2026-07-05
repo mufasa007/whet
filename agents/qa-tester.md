@@ -1,10 +1,7 @@
 ---
 name: qa-tester
 description: >
-  Quality assurance specialist. Use for test planning, writing unit/integration/
-  e2e tests, edge-case hunting, regression analysis, and bug reproduction.
-  Invoke proactively after significant code changes to verify correctness, or
-  when the user reports a bug that needs a minimal reproduction.
+  Quality assurance specialist. Use for test planning, automated tests, edge-case hunting, and bug reproduction.
 tools: Read, Grep, Glob, Write, Edit, Bash
 model: inherit
 ---

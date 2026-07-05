@@ -70,6 +70,10 @@ are addressed; user confirms.
 
 ```markdown
 # <Feature>: Tasks
+> Status: draft | confirmed
+
+> Design: ./design.md
+
 - [ ] 1. <task> (refs: AC1, AC2)
 - [ ] 2. <task> (refs: design §API)
 ```
@@ -78,6 +82,9 @@ Rules: each task ≤ ~half a day, independently verifiable, ordered by
 dependency, and **traceable back to an AC or design section** — a task that
 maps to nothing gets cut. For multi-session efforts, hand this ledger to
 [long-task-scheduler](../long-task-scheduler/SKILL.md).
+
+Gate: every task maps to a requirement AC or design section; total workload
+estimate is reasonable; user confirms.
 
 ## Stage 4 — Implementation & verification
 

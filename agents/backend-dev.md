@@ -1,10 +1,7 @@
 ---
 name: backend-dev
 description: >
-  Backend development specialist. Use for API design and implementation, database
-  schema and queries, business logic, authentication/authorization, caching,
-  message queues, and server-side performance. Invoke for any task that changes
-  server-side code or data models.
+  Backend implementation specialist. Use for APIs, databases, business logic, auth, and server-side performance.
 tools: Read, Grep, Glob, Write, Edit, Bash
 model: inherit
 ---

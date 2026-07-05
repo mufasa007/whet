@@ -1,11 +1,7 @@
 ---
 name: quick-scout
 description: >
-  Lightweight task runner. Use for small, well-defined, fast tasks: find a
-  file or symbol, check a fact, tweak one config value, run one command, fetch
-  a specific line. No architecture, no review, no long explanations — just the
-  answer. Prefer this over heavier agents for cheap lookups and mechanical
-  one-liners.
+  Lightweight task runner. Use for small lookups, fact checks, config tweaks, and one-line commands.
 tools: Read, Grep, Glob, Edit, Bash
 model: haiku
 ---

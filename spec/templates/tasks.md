@@ -1,5 +1,6 @@
 # <Feature>: Tasks
 
+> Status: draft | confirmed
 > Design: ./design.md
 
 <!--

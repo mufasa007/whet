@@ -1,10 +1,7 @@
 ---
 name: uiux-designer
 description: >
-  UI/UX design specialist. Use for interaction design, wireframes, design-system
-  decisions, component specs, accessibility review, and visual polish guidance.
-  Invoke when a feature needs user-facing screens designed or an existing UI
-  needs a usability/accessibility audit.
+  UI/UX design specialist. Use for interaction design, wireframes, design systems, and accessibility reviews.
 tools: Read, Grep, Glob, Write, WebSearch, WebFetch
 model: inherit
 ---

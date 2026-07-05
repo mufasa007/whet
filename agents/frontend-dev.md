@@ -1,9 +1,7 @@
 ---
 name: frontend-dev
 description: >
-  Frontend development specialist. Use for implementing web UI (React/Vue/etc.),
-  state management, API integration, performance tuning, and frontend build
-  tooling. Invoke for any task that changes browser-facing code.
+  Frontend implementation specialist. Use for web UI, state management, API integration, and build tooling.
 tools: Read, Grep, Glob, Write, Edit, Bash
 model: inherit
 ---

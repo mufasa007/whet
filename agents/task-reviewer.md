@@ -1,12 +1,7 @@
 ---
 name: task-reviewer
 description: >
-  Adversarial task-completion reviewer. Use when a subtask or phase of a
-  long-horizon plan claims to be complete and needs a final verdict before
-  commit. Read-only: verifies acceptance criteria with evidence, checks change
-  scope, re-runs verification, and rules pass / fail / external-blocker with
-  an explicit "commit allowed" decision. Distinct from code-reviewer: this
-  agent audits completion against a plan, not code style.
+  Adversarial completion reviewer. Use for final pass/fail verdicts before committing subtasks.
 tools: Read, Grep, Glob
 model: inherit
 ---

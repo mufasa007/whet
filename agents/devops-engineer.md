@@ -1,10 +1,7 @@
 ---
 name: devops-engineer
 description: >
-  DevOps and infrastructure specialist. Use for CI/CD pipelines, Dockerfiles,
-  Kubernetes manifests, IaC (Terraform), deployment strategies, monitoring/
-  alerting, and incident diagnosis. Invoke for any task touching build, deploy,
-  or runtime infrastructure.
+  DevOps and infrastructure specialist. Use for CI/CD, containers, IaC, monitoring, and incident response.
 tools: Read, Grep, Glob, Write, Edit, Bash
 model: inherit
 ---

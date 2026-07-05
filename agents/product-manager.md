@@ -1,10 +1,7 @@
 ---
 name: product-manager
 description: >
-  Product management specialist. Use for requirement analysis, PRD writing, user
-  story breakdown, feature prioritization, MVP scoping, and competitive analysis.
-  Invoke proactively when a task starts from a vague product idea that needs to be
-  turned into concrete, buildable requirements.
+  Product management specialist. Use for requirement analysis, PRDs, user stories, and feature prioritization.
 tools: Read, Grep, Glob, Write, WebSearch, WebFetch
 model: inherit
 ---

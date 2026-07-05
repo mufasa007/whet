@@ -14,9 +14,19 @@ ok(){ PASS=$((PASS+1)); printf '  ✓ %s\n' "$1"; }
 no(){ FAIL=$((FAIL+1)); FAILED_CASES+=("$1"); printf '  ✗ %s\n' "$1"; }
 # check "名称" 期望码 -- 命令...
 run_hook(){ # $1 脚本  $2 期望exit  $3 stdin  $4 projectdir  $5 名称
-  local out rc
-  out="$(printf '%s' "$3" | CLAUDE_PROJECT_DIR="$4" bash "$1" 2>/dev/null)"; rc=$?
-  if [[ "$rc" == "$2" ]]; then ok "$5 (exit $rc)"; else no "$5 (期望 $2，实得 $rc)"; fi
+  local out rc errfile="$TMP/hook_err_$$.txt"
+  out="$(printf '%s' "$3" | CLAUDE_PROJECT_DIR="$4" bash "$1" 2>"$errfile")"; rc=$?
+  if [[ "$rc" == "$2" ]]; then
+    ok "$5 (exit $rc)"
+  else
+    no "$5 (期望 $2，实得 $rc)"
+    if [[ -s "$errfile" ]]; then
+      echo "    --- stderr ---"
+      cat "$errfile" | sed 's/^/    /'
+      echo "    --------------"
+    fi
+  fi
+  rm -f "$errfile"
 }
 
 echo "════════════════════════════════════════════"
@@ -81,21 +91,32 @@ run_hook "$H" 2 '{"file_path":"/x/.aws/config.yaml"}'    "$TMP" ".aws/config.yam
 
 echo
 echo "════════════════════════════════════════════"
+echo " 2.5 protect-sensitive-bash.sh — Bash 重定向护栏"
+echo "════════════════════════════════════════════"
+H="$ROOT/hooks/scripts/protect-sensitive-bash.sh"
+run_hook "$H" 2 '{"command":"echo x > .env"}'                       "$TMP" "Bash > .env → 拦截"
+run_hook "$H" 2 '{"command":"echo x >> /home/user/.aws/credentials"}' "$TMP" "Bash >> 敏感路径 → 拦截"
+run_hook "$H" 0 '{"command":"echo x > README.md"}'                "$TMP" "Bash > README.md → 放行"
+run_hook "$H" 0 '{"command":"ls -la"}'                            "$TMP" "Bash 无重定向 → 放行"
+run_hook "$H" 0 '{"command":"echo x > .env.example"}'             "$TMP" "Bash > .env.example → 放行(模板)"
+
+echo
+echo "════════════════════════════════════════════"
 echo " 3. session-ledger.sh — 台账检测(SessionStart)"
 echo "════════════════════════════════════════════"
 H="$ROOT/hooks/scripts/session-ledger.sh"
 # 该脚本用相对路径 .whet/plan，需在 cwd 下建目录并切过去
 SL="$TMP/sl"; mkdir -p "$SL/.whet/plan/20260704-002-demo"
 printf '# plan\n' > "$SL/.whet/plan/20260704-002-demo/plan.md"
-out="$(cd "$SL" && bash "$H" 2>/dev/null)"; rc=$?
+out="$(cd "$SL" && bash "$H" 2>"$TMP/sl_err1.txt")"; rc=$?
 if [[ $rc -eq 0 && "$out" == *"20260704-002-demo"* && "$out" == *"plan.md"* ]]; then
   ok "有台账 → 输出最新批次提示 (exit 0)"; else no "有台账 → 期望提示含批次名，实得: [$out] rc=$rc"; fi
 SL2="$TMP/sl-empty"; mkdir -p "$SL2"
-out="$(cd "$SL2" && bash "$H" 2>/dev/null)"; rc=$?
+out="$(cd "$SL2" && bash "$H" 2>"$TMP/sl_err2.txt")"; rc=$?
 if [[ $rc -eq 0 && -z "$out" ]]; then ok "无台账 → 静默 (exit 0, 无输出)"; else no "无台账 → 期望静默，实得: [$out] rc=$rc"; fi
 # 有 plan 目录但无 plan.md → 不应误报
 SL3="$TMP/sl-nopm"; mkdir -p "$SL3/.whet/plan/20260704-003-half"
-out="$(cd "$SL3" && bash "$H" 2>/dev/null)"; rc=$?
+out="$(cd "$SL3" && bash "$H" 2>"$TMP/sl_err3.txt")"; rc=$?
 if [[ $rc -eq 0 && -z "$out" ]]; then ok "批次目录缺 plan.md → 静默"; else no "缺plan.md → 期望静默，实得: [$out]"; fi
 
 echo
@@ -148,7 +169,14 @@ BADGE_VER="$(grep -oE 'version-[0-9]+\.[0-9]+\.[0-9]+' "$ROOT/README.md" | head 
 
 echo
 echo "════════════════════════════════════════════"
-echo " 5.6 agent 列表硬编码同步检查"
+echo " 5.6 docs/guide.zh-CN.html 版本一致性"
+echo "════════════════════════════════════════════"
+HTML_VER="$(grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' "$ROOT/docs/guide.zh-CN.html" | head -n1)"
+[[ "$PV" == "${HTML_VER#v}" ]] && ok "guide.zh-CN.html 版本与 plugin.json 一致 (${HTML_VER#v})" || no "guide.zh-CN.html=$HTML_VER 与 plugin=$PV 不一致"
+
+echo
+echo "════════════════════════════════════════════"
+echo " 5.7 agent 列表硬编码同步检查"
 echo "════════════════════════════════════════════"
 python3 - "$ROOT" <<'PY'
 import os,sys,re
@@ -240,7 +268,7 @@ for t in requirements design tasks; do
   [[ -f "$ROOT/spec/templates/$t.md" ]] && ok "spec 模板 $t.md 存在" || no "spec 模板 $t 缺失"
 done
 
-echo
+
 echo "════════════════════════════════════════════"
 echo " 汇总"
 echo "════════════════════════════════════════════"

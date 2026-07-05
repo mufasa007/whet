@@ -1,10 +1,7 @@
 ---
 name: mobile-dev
 description: >
-  Mobile development specialist. Use for iOS (Swift/SwiftUI), Android
-  (Kotlin/Compose), and cross-platform (Flutter/React Native) implementation,
-  platform-specific integration, offline support, and app performance. Invoke for
-  any task that changes mobile app code.
+  Mobile implementation specialist. Use for iOS, Android, and cross-platform apps, platform integration, and performance.
 tools: Read, Grep, Glob, Write, Edit, Bash
 model: inherit
 ---

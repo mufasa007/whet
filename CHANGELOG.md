@@ -8,17 +8,26 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - **MINOR** — new agents/skills/commands, new capabilities, template additions.
 - **PATCH** — wording fixes, prompt tuning, doc corrections.
 
-# Changelog
-
-All notable changes to Whet are documented here.
-Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
-
-- **MAJOR** — breaking: rename/remove an agent, skill, or command; change the
-  `.whet/plan/` ledger layout; tighten hook blocking rules.
-- **MINOR** — new agents/skills/commands, new capabilities, template additions.
-- **PATCH** — wording fixes, prompt tuning, doc corrections.
-
 ## [Unreleased]
+
+## [0.3.2] - 2026-07-06
+
+### Fixed
+- `agents/*.md`: compressed all 11 agent `description` fields to 1–2 trigger sentences (≤200 chars) to reduce per-session fixed token cost, per token-optimizer's own recommendation.
+- `skills/model-router/SKILL.md`: made mechanism #4 platform-agnostic (`ANTHROPIC_MODEL` → "platform-specific model env vars"); documented T4 authorization format (`Tier escalation authorized up to: T4`); clarified `haiku` maps to T3 and degrades gracefully if unavailable.
+- `skills/spec-workflow/SKILL.md`: added Stage 3 Gate — user confirms every task maps to a requirement AC or design section and total workload estimate is reasonable.
+- `spec/templates/tasks.md`: added `> Status: draft | confirmed` marker at the top for consistency with other spec templates.
+- `commands/spec.md`: clarified that existing `spec/<feature-slug>/` directories trigger incremental updates rather than overwrite.
+- `scripts/regression-test.sh`: `run_hook` now captures stderr to a temp file and dumps it on failure (no longer silently swallowed).
+
+### Added
+- `hooks/scripts/protect-sensitive-bash.sh`: new PreToolUse hook for `Bash` that blocks redirects (`>`, `>>`) to sensitive files, closing the Bash bypass for `protect-sensitive.sh`.
+- `CONTRIBUTING.md`: new contributor guide covering environment setup, code conventions, test requirements, and bilingual sync rules.
+- `.github/ISSUE_TEMPLATE/bug_report.md` & `.github/ISSUE_TEMPLATE/feature_request.md`: issue templates for bug reports and feature requests.
+- `.github/pull_request_template.md`: PR checklist template enforcing regression-test results and change-level assessment.
+
+### Changed
+- `scripts/regression-test.sh`: added `docs/guide.zh-CN.html` version consistency check and `protect-sensitive-bash.sh` test cases (5 assertions, total 89).
 
 ## [0.3.1] - 2026-07-06
 
@@ -32,6 +41,8 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 
 ### Changed
 - `scripts/regression-test.sh`: added README badge version check, agent-list sync validation (`agents/*.md` ↔ `enforce-model-tier.sh`), and 18 new `protect-sensitive` + 3 new `enforce-model-tier` JSON edge-case test cases (total 79 assertions, all passing).
+
+## [0.3.0] - 2026-07-04
 
 ### Added
 - `enforce-model-tier` PreToolUse (Task/Agent) hook: while a `.whet/plan/`

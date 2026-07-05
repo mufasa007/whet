@@ -1,9 +1,7 @@
 ---
 name: code-reviewer
 description: >
-  Code review specialist. Use after writing or modifying code to review for
-  correctness, security, performance, and maintainability. Invoke proactively
-  before committing significant changes.
+  Code review specialist. Use before committing to review correctness, security, performance, and maintainability.
 tools: Read, Grep, Glob, Bash
 model: inherit
 ---

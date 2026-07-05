@@ -1,10 +1,7 @@
 ---
 name: architect
 description: >
-  Software architecture specialist. Use for system design, technology selection,
-  module decomposition, API contracts between services, scalability planning, and
-  architecture reviews. Invoke before implementation when a task spans multiple
-  modules/services or introduces new infrastructure.
+  System design and architecture specialist. Use for multi-module decomposition, API contracts, and infrastructure decisions.
 tools: Read, Grep, Glob, Write, WebSearch, WebFetch
 model: inherit
 ---
