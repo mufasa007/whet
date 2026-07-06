@@ -2,7 +2,7 @@
 
 > Sharpen Claude Code into a full product team.
 
-[![Version](https://img.shields.io/badge/version-0.4.0-blue)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.0-blue)](./CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 [![Claude Code Plugin](https://img.shields.io/badge/Claude%20Code-plugin-orange)](https://docs.anthropic.com/en/docs/claude-code)
 
@@ -69,6 +69,7 @@ in each release; breaking releases (MAJOR) always include a migration note.
 | `model-router` | Platform-agnostic tier abstraction (T1 deep reasoning / T2 balanced / T3 fast / T4 extreme) with a runtime model-selection protocol — no hardcoded model names, evidence-based escalation |
 | `token-optimizer` | In-flight techniques (input minimization, cache-friendly prompts, output discipline) plus a four-layer project audit with quality red lines |
 | `spec-workflow` | Gated requirements → design → tasks flow with specs versioned in `spec/` |
+| `quick-fix` | Fast diagnose-and-fix for a single concrete problem: evidence-based fault pinning (`file:line` + causal chain), 2–3 fix options with risk/verification for the user to choose, then minimal-diff execution — one human gate, no ledger |
 
 ### Commands (`commands/`)
 
@@ -79,6 +80,9 @@ in each release; breaking releases (MAJOR) always include a migration note.
 | `/whet:resume` | Resume the latest batch ledger from where it left off |
 | `/whet:review [base]` | Parallel QA + code review of current changes |
 | `/whet:optimize [scope]` | Read-only project-level token audit |
+| `/whet:fix <problem>` | Diagnose a problem, choose a fix from proposed options, apply and verify |
+| `/whet:do <tasks>` | Fast lane for small well-defined tasks — route, execute, verify, report |
+| `/whet:status [filter]` | Status dashboard of active batch ledgers and specs |
 
 ### Hooks (`hooks/`)
 
@@ -90,6 +94,10 @@ in each release; breaking releases (MAJOR) always include a migration note.
 
 ```
 idea ──/whet:spec──▶ spec/<feature>/                    (spec-workflow)
+                          │
+   one bug? ──/whet:fix──▶ diagnose → options → you pick → fix+verify   (quick-fix)
+                          │
+   small task? ──/whet:do──▶ route (quick-scout/specialist) → execute → verify
                           │
    big effort? ──/whet:plan──▶ .whet/plan/{batch}/      (long-task-scheduler)
                           │        plan / issues / progress / archives
@@ -122,8 +130,8 @@ Key design points (borrowed from battle-tested long-horizon agent crews):
 ```
 whet/
 ├── .claude-plugin/       # plugin + marketplace manifests
-├── agents/               # 11 professional subagents
-├── skills/               # 4 workflow skills (+ ledger templates)
+├── agents/               # 14 professional subagents
+├── skills/               # 5 workflow skills (+ ledger templates)
 ├── commands/             # /whet:* slash commands
 ├── hooks/                # session & safety hooks
 ├── spec/templates/       # requirements / design / tasks templates
@@ -171,6 +179,7 @@ Issues and PRs are welcome. Before opening a PR:
 - **自动模型选择**（`model-router`）：平台无关的 **T1~T4 能力档位抽象**（强推理/均衡/快速/极限），运行时按平台实际可选模型动态落地，不硬编码模型名；从最低够用档起步，凭证据升档，升档决策留痕。长程任务台账激活期间，配套 hook 会硬拦截未显式指定 `model` 的 whet agent 派发，确保每次派发都是有意识的档位选择。
 - **Token 消耗优化**（`token-optimizer`）：会话内手法（输入最小化、缓存友好的稳定前缀、输出纪律）+ **项目级四层诊断**（会话/常驻配置/仓库结构/流程），并设质量红线——损害判断质量的"节省"一律否决。
 - **规格驱动开发**（`spec-workflow`）：需求 → 设计 → 任务三段门控流程，规格随代码版本化在 `spec/`。
+- **快速排查修复**（`quick-fix`）：针对单个具体问题（bug、报错、构建/测试失败）的快速通道——先以证据把故障点定位到 `file:line` 级并给出因果链，再提出 2–3 个真正不同的修复方案（含风险、改动量、验证方式）供人工审定，最后按选定方案最小化改动执行并跑验证；全程仅"选方案"一个人工介入点，不建台账。
 
 ### 安装
 
@@ -198,11 +207,18 @@ Issues and PRs are welcome. Before opening a PR:
 - `/whet:resume` — 从最新台账断点继续
 - `/whet:review [基准分支]` — QA + 代码评审并行审查当前改动
 - `/whet:optimize [范围]` — 项目级 token 消耗只读审计
+- `/whet:fix <问题描述>` — 快速排查定位故障点，人工选定方案后快速修复并验证
+- `/whet:do <任务描述>` — 小任务快速通道：路由执行、验证、回报（多个任务用 `;` 分隔，独立任务并行跑）
+- `/whet:status [过滤]` — 查看所有活跃台账与规格的状态面板
 
 ### 架构总览
 
 ```
 idea ──/whet:spec──▶ spec/<功能名>/                    (spec-workflow)
+                          │
+   单个bug? ──/whet:fix──▶ 排查 → 出方案 → 人工选定 → 修复+验证   (quick-fix)
+                          │
+   小任务? ──/whet:do──▶ 路由(quick-scout/专业agent) → 执行 → 验证
                           │
    大工程? ──/whet:plan──▶ .whet/plan/{批次}/      (long-task-scheduler)
                           │        plan / issues / progress / archives
@@ -229,8 +245,8 @@ idea ──/whet:spec──▶ spec/<功能名>/                    (spec-workfl
 ```
 whet/
 ├── .claude-plugin/       # 插件 + 市场清单
-├── agents/               # 11 个专业 Agent
-├── skills/               # 4 个工作流技能（+ 台账模板）
+├── agents/               # 14 个专业 Agent
+├── skills/               # 5 个工作流技能（+ 台账模板）
 ├── commands/             # /whet:* 斜杠命令
 ├── hooks/                # 会话与安全钩子
 ├── spec/templates/       # 需求 / 设计 / 任务模板

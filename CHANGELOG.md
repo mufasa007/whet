@@ -10,6 +10,21 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-07-06
+
+### Added
+- `quick-fix` skill — fast diagnose-and-fix lane for a single concrete problem (bug, error, failing build/test): evidence-based fault pinning (`file:line` + causal chain, labeled confirmed vs hypothesis), then 2–3 genuinely different fix options (change / risk / effort / verification) presented for the user to choose — the single mandatory human gate — then minimal-diff execution verified against the Phase-1 reproduction command. Single session, no ledger; hands off to `/whet:plan` when diagnosis reveals a multi-phase effort.
+- `/whet:fix <problem>` command — drives the quick-fix skill.
+- `/whet:do <tasks>` command — fast lane for small well-defined tasks: scope check (ambiguity → one question first; feature-sized work → recommend `/whet:spec` / `/whet:plan`; a bug to diagnose → `/whet:fix`), tier-based routing per model-router (mechanical work → quick-scout at T3, small domain edits → specialist at T2), minimal-diff execution, cheapest-proof verification with per-task reporting. Multiple tasks separated by `;`; independent tasks run in parallel, same-file tasks serially.
+
+### Fixed
+- `README.md`: both commands tables (English and 中文) were missing `/whet:status`; repository-layout comments carried stale counts (11 agents → 14, 4 skills → 5).
+- `docs/guide.zh-CN.html`: content synced back to reality (body was stale since 0.3.2) — hero version badge, nav, agent roster (added security-engineer / data-engineer / tech-writer), skills section (added quick-fix), quickstart table, command reference (added `/whet:status`, `/whet:fix`, `/whet:do`), version history table.
+
+### Changed
+- `scripts/regression-test.sh`: command-presence checklist now includes `fix` and `do`.
+- `CLAUDE.md`: "How the pieces fit" documents the `/whet:fix` → `quick-fix` coupling.
+
 ## [0.4.0] - 2026-07-06
 
 ### Added

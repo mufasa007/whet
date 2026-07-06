@@ -25,7 +25,9 @@ templates. There is no build step; Markdown and JSON are the product.
   in the **user's** `spec/<feature>/`. `/whet:plan` and `/whet:resume` drive
   `long-task-scheduler` → a per-batch ledger in the user's
   `.whet/plan/{YYYYMMDD}-{NNN}-{slug}/` (seeded from
-  `skills/long-task-scheduler/templates/`).
+  `skills/long-task-scheduler/templates/`). `/whet:fix` drives `quick-fix` →
+  evidence-based diagnosis, a mandatory pick-a-fix human gate, then a
+  minimal-diff fix — single session, no ledger.
 - Execution/review are separated: executor agents only bring work to "ready
   for review"; only `task-reviewer`'s explicit verdict unlocks a phase commit.
 - `model-router` defines the shared T1–T4 tier vocabulary referenced by

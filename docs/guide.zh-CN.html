@@ -356,7 +356,7 @@
 <nav class="sidebar">
   <div class="logo">
     <div class="name">Whet</div>
-    <div class="tag">中文使用指南 · v0.4.0</div>
+    <div class="tag">中文使用指南 · v0.5.0</div>
   </div>
   <div class="group">开始</div>
   <a href="#intro">Whet 是什么</a>
@@ -364,12 +364,13 @@
   <a href="#quickstart">五分钟上手</a>
   <div class="group">核心概念</div>
   <a href="#overview">整体工作流</a>
-  <a href="#agents">Agent 团队（11 个）</a>
-  <a href="#skills">技能（4 个）</a>
+  <a href="#agents">Agent 团队（14 个）</a>
+  <a href="#skills">技能（5 个）</a>
   <a href="#skill-scheduler" class="sub">长程任务调度</a>
   <a href="#skill-router" class="sub">自动模型选择</a>
   <a href="#skill-token" class="sub">Token 优化</a>
   <a href="#skill-spec" class="sub">规格驱动开发</a>
+  <a href="#skill-quickfix" class="sub">快速排查修复</a>
   <div class="group">日常使用</div>
   <a href="#commands">斜杠命令</a>
   <a href="#cmd-spec" class="sub">/whet:spec</a>
@@ -377,6 +378,9 @@
   <a href="#cmd-resume" class="sub">/whet:resume</a>
   <a href="#cmd-review" class="sub">/whet:review</a>
   <a href="#cmd-optimize" class="sub">/whet:optimize</a>
+  <a href="#cmd-fix" class="sub">/whet:fix</a>
+  <a href="#cmd-do" class="sub">/whet:do</a>
+  <a href="#cmd-status" class="sub">/whet:status</a>
   <a href="#hooks">Hooks 安全钩子</a>
   <a href="#ledger">台账文件详解</a>
   <div class="group">附录</div>
@@ -390,7 +394,7 @@
   <h1>Whet <span class="zh">使用指南</span></h1>
   <p class="slogan">把 Claude Code 磨砺（whet）成一支完整的产品团队。</p>
   <div class="badges">
-    <span class="b-ver">版本 0.3.2</span>
+    <span class="b-ver">版本 0.5.0</span>
     <span class="b-lic">MIT 许可</span>
     <span class="b-plug">Claude Code 插件</span>
   </div>
@@ -404,8 +408,8 @@
 
 <div class="grid2">
   <div class="card">
-    <h4 style="margin-top:0">🧑‍💻 11 个专业 Agent</h4>
-    <p style="font-size:14.5px">产品经理、架构师、UI/UX 设计师、前端 / 后端 / 移动端工程师、QA、运维、代码评审员、<strong>任务审核器</strong>（对抗式完成度审计）、<strong>轻量执行员</strong>（低成本跑小任务）。</p>
+    <h4 style="margin-top:0">🧑‍💻 14 个专业 Agent</h4>
+    <p style="font-size:14.5px">产品经理、架构师、UI/UX 设计师、前端 / 后端 / 移动端工程师、QA、运维、安全工程师、数据工程师、技术文档工程师、代码评审员、<strong>任务审核器</strong>（对抗式完成度审计）、<strong>轻量执行员</strong>（低成本跑小任务）。</p>
   </div>
   <div class="card">
     <h4 style="margin-top:0">📋 长程任务调度</h4>
@@ -453,8 +457,8 @@
 
 <h3>验证安装</h3>
 <ul>
-  <li>输入 <code>/agents</code> —— 应能看到 <code>architect</code>、<code>backend-dev</code> 等 11 个 whet agent；</li>
-  <li>输入 <code>/help</code> —— 应能看到 <code>/whet:spec</code>、<code>/whet:plan</code> 等 5 个命令。</li>
+  <li>输入 <code>/agents</code> —— 应能看到 <code>architect</code>、<code>backend-dev</code> 等 14 个 whet agent；</li>
+  <li>输入 <code>/help</code> —— 应能看到 <code>/whet:spec</code>、<code>/whet:plan</code> 等 8 个命令。</li>
 </ul>
 </section>
 
@@ -467,9 +471,14 @@
 <table>
   <tr><th>你的场景</th><th>入口</th><th>发生什么</th></tr>
   <tr>
-    <td>修个 bug、小改动</td>
-    <td>直接说需求</td>
-    <td>不需要任何仪式，Claude 直接修（带测试）。相关 agent（如 <code>code-reviewer</code>）会按需自动介入。</td>
+    <td>明确的小任务：改配置、小改动</td>
+    <td><code>/whet:do 任务描述</code></td>
+    <td>小任务快速通道：按档位路由执行（机械查证给 quick-scout），最小改动 + 验证回报。多个任务用 <code>;</code> 分隔，独立任务并行跑。</td>
+  </tr>
+  <tr>
+    <td>有个问题要排查：bug、报错、构建失败</td>
+    <td><code>/whet:fix 问题描述</code></td>
+    <td>先以证据把故障点定位到 <code>file:line</code> 级，给出 2–3 个修复方案<strong>等你选定</strong>，再按选定方案最小化修复并验证。</td>
   </tr>
   <tr>
     <td>一个不算小的新功能</td>
@@ -495,6 +504,11 @@
     <td>感觉 token 烧得快</td>
     <td><code>/whet:optimize</code></td>
     <td>只读的四层 token 审计，给出证据 + 影响估计 + 可直接执行的修复清单。</td>
+  </tr>
+  <tr>
+    <td>想知道手头的台账 / 规格都跑到哪了</td>
+    <td><code>/whet:status</code></td>
+    <td>紧凑的状态面板：每个活跃台账 ≤ 3 行（状态 / 下一动作 / 阻塞），每个规格 1 行。</td>
   </tr>
 </table>
 
@@ -548,7 +562,7 @@
 
 <!-- ======================================================= -->
 <section id="agents">
-<h2><span class="kicker">核心概念</span>Agent 团队（11 个）</h2>
+<h2><span class="kicker">核心概念</span>Agent 团队（14 个）</h2>
 
 <p>每个 agent 都是一份带 YAML frontmatter 的系统提示词，其 <code>description</code> 描述「什么时候该用它」——这也是 Claude Code 自动委派的依据。你可以显式点名（「让 architect 评估一下」），也可以放手让主会话按任务性质自动路由。</p>
 
@@ -569,6 +583,11 @@
     <td><code>uiux-designer</code></td>
     <td>交互设计、线框图、设计系统决策、组件规格、无障碍（a11y）审查</td>
     <td>功能需要设计用户界面，或现有 UI 需要可用性 / 无障碍审计</td>
+  </tr>
+  <tr>
+    <td><code>tech-writer</code></td>
+    <td>文档撰写、API 文档、发布说明、README 维护</td>
+    <td>需要撰写或维护面向用户 / 开发者的文档时</td>
   </tr>
 </table>
 
@@ -595,6 +614,11 @@
     <td>CI/CD 流水线、Dockerfile、K8s 清单、IaC（Terraform）、监控告警、事故诊断</td>
     <td>任何触碰构建、部署或运行时基础设施的任务</td>
   </tr>
+  <tr>
+    <td><code>data-engineer</code></td>
+    <td>数据建模、SQL 优化、ETL 设计、schema migration、数据质量校验</td>
+    <td>任务涉及数据管线、复杂查询或数据库结构变更时</td>
+  </tr>
 </table>
 
 <h3>质量与效率</h3>
@@ -609,6 +633,11 @@
     <td><code>code-reviewer</code></td>
     <td>Diff 评审：正确性、安全、性能、可维护性（只读）</td>
     <td>提交重要改动前主动介入</td>
+  </tr>
+  <tr>
+    <td><code>security-engineer</code></td>
+    <td>安全审计、威胁建模、渗透测试思路、依赖漏洞扫描</td>
+    <td>任务涉及认证授权、敏感数据或需要安全评估时</td>
   </tr>
   <tr>
     <td><code>task-reviewer</code></td>
@@ -630,8 +659,8 @@
 
 <!-- ======================================================= -->
 <section id="skills">
-<h2><span class="kicker">核心概念</span>技能（4 个）</h2>
-<p>技能是可复用的工作流手册，在场景匹配时自动装载。四个技能互相咬合：<strong>scheduler</strong> 管长程编排，<strong>router</strong> 管每次派发用什么档位的模型，<strong>token-optimizer</strong> 管怎么花得省，<strong>spec-workflow</strong> 管动手前先立契约。</p>
+<h2><span class="kicker">核心概念</span>技能（5 个）</h2>
+<p>技能是可复用的工作流手册，在场景匹配时自动装载。五个技能互相咬合：<strong>scheduler</strong> 管长程编排，<strong>router</strong> 管每次派发用什么档位的模型，<strong>token-optimizer</strong> 管怎么花得省，<strong>spec-workflow</strong> 管动手前先立契约，<strong>quick-fix</strong> 管单个问题的快速排查修复。</p>
 
 <!-- ---------------- long-task-scheduler ---------------- -->
 <h3 id="skill-scheduler">📋 long-task-scheduler — 长程任务调度</h3>
@@ -853,13 +882,26 @@
   <span class="t">规格随代码版本化</span>
   规格保存在 <code>spec/&lt;feature-slug&gt;/</code>，与代码同仓提交。已合并功能的规格即文档；未合并的规格即计划。实现若与设计有偏差，在同一个 PR 里更新规格——绝不让 <code>spec/</code> 腐烂。
 </div>
+
+<!-- ---------------- quick-fix ---------------- -->
+<h3 id="skill-quickfix">🔧 quick-fix — 快速排查修复</h3>
+
+<p><strong>解决的问题</strong>：单个具体问题（bug、报错、构建 / 测试失败）走 spec / plan 太重，直接放手修又容易「拍脑袋改症状」。此技能是一条快速通道：单会话、不建台账，全程只有<strong>一个人工介入点</strong>。</p>
+
+<ol>
+  <li><strong>排查（讲证据）</strong>：捕获失败特征——一条命令能复现就先复现，该命令即后续验证门；按「最近改动 → 报错线索 → 定向检索」由廉价到昂贵收敛证据，独立的只读查证并行派给 quick-scout（T3）；最终把故障点钉到 <code>file:line</code> + 一句话因果链，并明确标注「<strong>已证实</strong>」还是「<strong>假设</strong>」——绝不把猜测当结论。</li>
+  <li><strong>出方案（人工门）</strong>：给出 2–3 个<strong>真正不同</strong>的修复方案，各附改动内容、风险面、改动量、验证方式，标一个推荐项，然后<strong>停下等你选定</strong>——即使方案显而易见也不自动执行。</li>
+  <li><strong>执行验证</strong>：只按选定方案做最小化改动（禁止顺手重构），用第 1 步的复现 / 验证命令拿证据，回报根因、改动文件与验证输出；不主动 commit。</li>
+</ol>
+
+<p>排查中若发现其实是多模块重设计 / 迁移级别的大工程，会带着已有诊断结论转荐 <code>/whet:plan</code>，绝不把长程任务硬塞进快速通道。入口：<a href="#cmd-fix"><code>/whet:fix</code></a>。</p>
 </section>
 
 <!-- ======================================================= -->
 <section id="commands">
 <h2><span class="kicker">日常使用</span>斜杠命令</h2>
 
-<p>五个命令是四个技能的「点火开关」。在 Claude Code 会话中直接输入即可。</p>
+<p>八个命令是五个技能的「点火开关」。在 Claude Code 会话中直接输入即可。</p>
 
 <h3 id="cmd-spec"><span class="pill cmd">/whet:spec</span> &lt;功能描述&gt;</h3>
 <p>为一个功能启动规格驱动开发。创建 <code>spec/&lt;feature-slug&gt;/</code>，驱动需求 → 设计 → 任务三段门控，<strong>每道门都会暂停等你确认</strong>；起草工作按技能指引委派给 product-manager 与 architect。</p>
@@ -889,6 +931,18 @@
 <h3 id="cmd-optimize"><span class="pill cmd">/whet:optimize</span> [范围]</h3>
 <p>项目级 token 消耗审计（<strong>只读</strong>）。范围可选 <code>session</code> / <code>config</code> / <code>full</code>（缺省 full）。走完四层诊断，产出「Token Audit」报告：每条发现附具体证据、影响估计与可直接执行的修复，外加会伤害质量而被否决的「伪节省」清单。<strong>不做任何改动</strong>——呈现排序后的修复清单，等你授权后才进入修复模式。</p>
 <pre><code><span class="k">/whet:optimize</span> <span class="s">config</span></code></pre>
+
+<h3 id="cmd-fix"><span class="pill cmd">/whet:fix</span> &lt;问题描述&gt;</h3>
+<p>单个问题的快速排查修复，驱动 <a href="#skill-quickfix">quick-fix</a> 技能：先以证据把故障点定位到 <code>file:line</code> 级并给出因果链（区分「已证实」与「假设」），再提出 2–3 个真正不同的修复方案（含风险、改动量、验证方式）<strong>等你选定</strong>，最后按选定方案最小化改动执行并跑验证。不建台账；发现是大工程会带着诊断转荐 <code>/whet:plan</code>。</p>
+<pre><code><span class="k">/whet:fix</span> <span class="s">登录接口偶发 500，日志里有 NullPointerException</span></code></pre>
+
+<h3 id="cmd-do"><span class="pill cmd">/whet:do</span> &lt;任务描述&gt;</h3>
+<p>小任务快速通道：<strong>范围检查</strong>（任务含糊先问一句；发现是功能开发转荐 <code>/whet:spec</code> / <code>/whet:plan</code>，是需排查的 bug 转荐 <code>/whet:fix</code>）→ <strong>按档位路由</strong>（机械查证 / 一行改动给 quick-scout，小的领域改动给对应专业 agent 或直接在 T2 执行）→ <strong>最小改动执行</strong> → 用最便宜的检查<strong>验证并逐任务回报</strong>。多个任务用 <code>;</code> 分隔，独立任务并行跑、碰同一文件的串行。</p>
+<pre><code><span class="k">/whet:do</span> <span class="s">把网关超时改成 30s；给 /health 响应加 version 字段</span></code></pre>
+
+<h3 id="cmd-status"><span class="pill cmd">/whet:status</span> [过滤]</h3>
+<p>紧凑的状态面板：扫描 <code>.whet/plan/</code> 下的活跃台账（每个 ≤ 3 行：名称 / 状态 / 下一动作 / 阻塞）与 <code>spec/</code> 下的规格进度（每个 1 行：功能 / 阶段 / 状态）。过滤可选 <code>plan</code> / <code>spec</code> / <code>all</code>（缺省 <code>all</code>）。</p>
+<pre><code><span class="k">/whet:status</span> <span class="s">plan</span></code></pre>
 </section>
 
 <!-- ======================================================= -->
@@ -988,7 +1042,9 @@
 <h3>近期版本速览</h3>
 <table>
   <tr><th>版本</th><th>要点</th></tr>
-  <tr><td><code>0.3.0</code></td><td>新增 <code>enforce-model-tier</code> 派发档位守卫 hook；model-router 记为机制 #5；调度器派发步骤要求显式 <code>model</code> 参数。</td></tr>
+  <tr><td><code>0.5.0</code></td><td>新增 <code>quick-fix</code> 技能与 <code>/whet:fix</code>（证据化排查 → 人工选方案 → 最小化修复）、<code>/whet:do</code>（小任务快速通道）两个命令。</td></tr>
+  <tr><td><code>0.4.0</code></td><td>新增 <code>security-engineer</code>、<code>data-engineer</code>、<code>tech-writer</code> 三个 agent 与 <code>/whet:status</code> 状态面板命令；新增 GitHub Actions CI。</td></tr>
+  <tr><td><code>0.3.x</code></td><td>新增 <code>enforce-model-tier</code> 派发档位守卫 hook 与 Bash 重定向敏感文件护栏；agent 描述压缩以降低固定 token 成本；回归自测大幅加严。</td></tr>
   <tr><td><code>0.2.0</code></td><td>新增 <code>task-reviewer</code>、<code>quick-scout</code> 两个 agent 与 <code>/whet:optimize</code> 命令；model-router 重写为 T1–T4 档位抽象；调度器升级为批次台账目录 + 冲突域批处理 + 一次性预授权 + 零中途打扰；token-optimizer 加入四层审计与质量红线。</td></tr>
   <tr><td><code>0.1.0</code></td><td>首发：9 个 agent、4 个技能、4 个命令、2 个 hook、规格模板与清单文件。</td></tr>
 </table>

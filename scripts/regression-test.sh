@@ -261,7 +261,7 @@ echo
 echo "════════════════════════════════════════════"
 echo " 8. commands / spec 模板存在性"
 echo "════════════════════════════════════════════"
-for c in optimize plan resume review spec status; do
+for c in do fix optimize plan resume review spec status; do
   [[ -f "$ROOT/commands/$c.md" ]] && ok "command /whet:$c 存在" || no "command $c 缺失"
 done
 for t in requirements design tasks; do
