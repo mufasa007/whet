@@ -22,7 +22,8 @@ templates. There is no build step; Markdown and JSON are the product.
 ## How the pieces fit
 
 - `/whet:spec` drives `spec-workflow` → gated requirements/design/tasks docs
-  in the **user's** `spec/<feature>/`. `/whet:plan` and `/whet:resume` drive
+  in the **user's** `.whet/spec/{YYYYMMDD}-{NNN}-{slug}/` by default, while
+  continuing to read legacy `spec/<feature>/` directories. `/whet:plan` and `/whet:resume` drive
   `long-task-scheduler` → a per-batch ledger in the user's
   `.whet/plan/{YYYYMMDD}-{NNN}-{slug}/` (seeded from
   `skills/long-task-scheduler/templates/`). `/whet:fix` drives `quick-fix` →
@@ -46,7 +47,7 @@ Cross-file couplings — keep in sync when changing one side:
   must update it (`quick-scout` is deliberately absent: it's exempt).
 - README's agent/skill/command tables exist in English AND the 中文说明
   section — update both.
-- `.whet/plan/**` and `spec/**` referenced throughout are directories in the
+- `.whet/plan/**`, `.whet/spec/**`, and legacy `spec/**` referenced throughout are directories in the
   *user's* project, not this repo.
 
 ## Conventions

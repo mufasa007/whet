@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # whet 回归自测。从仓库任意位置运行:  bash scripts/regression-test.sh
 # 覆盖:3 个 hook 脚本的黑盒行为 + agents/skills frontmatter 约定 +
-#       JSON 清单与版本一致性 + commands/spec 模板存在性。
+#       JSON 清单与版本一致性 + commands/spec 与 spec 模板存在性/关键文案。
 # 只读校验,不改任何仓库文件;临时产物写入 ./tmp/selftest(tmp 已被 .gitignore),跑完自动清理。
 set -euo pipefail
 cd "$(dirname "$0")/.."   # 仓库根(脚本位于 scripts/)
@@ -267,9 +267,13 @@ done
 for t in requirements design tasks; do
   [[ -f "$ROOT/spec/templates/$t.md" ]] && ok "spec 模板 $t.md 存在" || no "spec 模板 $t 缺失"
 done
-
-
-echo "════════════════════════════════════════════"
+[[ "$(grep -c '.whet/spec/' "$ROOT/commands/spec.md")" -gt 0 ]] && ok "commands/spec.md 使用新 .whet/spec 路径" || no "commands/spec.md 未声明新 .whet/spec 路径"
+[[ "$(grep -c 'legacy `spec/<feature-slug>/`' "$ROOT/commands/spec.md")" -gt 0 ]] && ok "commands/spec.md 保留 legacy spec 兼容说明" || no "commands/spec.md 缺 legacy spec 兼容说明"
+[[ "$(grep -c '.whet/spec/' "$ROOT/skills/spec-workflow/SKILL.md")" -gt 0 ]] && ok "spec-workflow 技能文档使用新 .whet/spec 路径" || no "spec-workflow 技能文档未声明新 .whet/spec 路径"
+[[ "$(grep -c 'legacy `spec/`' "$ROOT/commands/status.md")" -gt 0 ]] && ok "commands/status.md 兼容 legacy spec 扫描" || no "commands/status.md 缺 legacy spec 扫描说明"
+[[ "$(grep -c '.whet/spec/' "$ROOT/README.md")" -gt 0 ]] && ok "README 已同步新 .whet/spec 路径" || no "README 未同步新 .whet/spec 路径"
+[[ "$(grep -c '.whet/spec/' "$ROOT/CLAUDE.md")" -gt 0 ]] && ok "CLAUDE.md 已同步新 .whet/spec 路径" || no "CLAUDE.md 未同步新 .whet/spec 路径"
+[[ "$(grep -c '.whet/spec/' "$ROOT/docs/guide.zh-CN.html")" -gt 0 ]] && ok "guide.zh-CN.html 已同步新 .whet/spec 路径" || no "guide.zh-CN.html 未同步新 .whet/spec 路径"
 echo " 汇总"
 echo "════════════════════════════════════════════"
 # 把两段 python 的内部计数并入（它们已各自打印✓/✗，这里只统计 bash 段）

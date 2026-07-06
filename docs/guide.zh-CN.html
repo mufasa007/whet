@@ -356,7 +356,7 @@
 <nav class="sidebar">
   <div class="logo">
     <div class="name">Whet</div>
-    <div class="tag">中文使用指南 · v0.5.0</div>
+    <div class="tag">中文使用指南 · v1.0.0</div>
   </div>
   <div class="group">开始</div>
   <a href="#intro">Whet 是什么</a>
@@ -394,7 +394,7 @@
   <h1>Whet <span class="zh">使用指南</span></h1>
   <p class="slogan">把 Claude Code 磨砺（whet）成一支完整的产品团队。</p>
   <div class="badges">
-    <span class="b-ver">版本 0.5.0</span>
+    <span class="b-ver">版本 1.0.0</span>
     <span class="b-lic">MIT 许可</span>
     <span class="b-plug">Claude Code 插件</span>
   </div>
@@ -452,7 +452,7 @@
 
 <div class="callout tip">
   <span class="t">更新须知</span>
-  更新在<strong>新会话</strong>中生效。你项目里的 <code>.whet/plan/**</code> 台账与 <code>spec/**</code> 规格文档属于<strong>用户数据</strong>，保存在你自己的仓库中，插件更新永远不会改动它们。破坏性版本（MAJOR）必附迁移说明，见 CHANGELOG.md。
+  更新在<strong>新会话</strong>中生效。你项目里的 <code>.whet/plan/**</code> 台账、<code>.whet/spec/**</code> 新规格与旧 <code>spec/**</code> 规格文档都属于<strong>用户数据</strong>，保存在你自己的仓库中，插件更新永远不会改动它们。破坏性版本（MAJOR）必附迁移说明，见 CHANGELOG.md。
 </div>
 
 <h3>验证安装</h3>
@@ -483,7 +483,7 @@
   <tr>
     <td>一个不算小的新功能</td>
     <td><code>/whet:spec 功能描述</code></td>
-    <td>走需求 → 设计 → 任务三段门控，每一段等你确认后才进入下一段，规格文档落在 <code>spec/&lt;功能名&gt;/</code>。</td>
+    <td>走需求 → 设计 → 任务三段门控，每一段等你确认后才进入下一段；新规格默认落在 <code>.whet/spec/{YYYYMMDD}-{NNN}-{slug}/</code>，旧 <code>spec/&lt;功能名&gt;/</code> 继续兼容。</td>
   </tr>
   <tr>
     <td>大工程：迁移、大重构、功能史诗</td>
@@ -528,7 +528,7 @@
   <div class="row">
     <div class="node"><b>💡 想法</b><small>一句话需求</small></div>
     <div class="arrow">→</div>
-    <div class="node hl"><b>/whet:spec</b><small>spec/&lt;feature&gt;/<br>需求·设计·任务</small></div>
+    <div class="node hl"><b>/whet:spec</b><small>.whet/spec/{spec-id}/<br>需求·设计·任务</small></div>
     <div class="arrow">→</div>
     <div class="node hl"><b>/whet:plan</b><small>.whet/plan/{批次}/<br>台账：计划·问题·进度</small></div>
   </div>
@@ -880,7 +880,7 @@
 
 <div class="callout tip">
   <span class="t">规格随代码版本化</span>
-  规格保存在 <code>spec/&lt;feature-slug&gt;/</code>，与代码同仓提交。已合并功能的规格即文档；未合并的规格即计划。实现若与设计有偏差，在同一个 PR 里更新规格——绝不让 <code>spec/</code> 腐烂。
+  新规格默认保存在 <code>.whet/spec/{YYYYMMDD}-{NNN}-{slug}/</code>，与代码同仓提交；旧 <code>spec/&lt;feature-slug&gt;/</code> 继续兼容且不会被自动迁移。已合并功能的规格即文档；未合并的规格即计划。实现若与设计有偏差，在同一个 PR 里更新规格——绝不让规格文档腐烂。
 </div>
 
 <!-- ---------------- quick-fix ---------------- -->
@@ -904,7 +904,7 @@
 <p>八个命令是五个技能的「点火开关」。在 Claude Code 会话中直接输入即可。</p>
 
 <h3 id="cmd-spec"><span class="pill cmd">/whet:spec</span> &lt;功能描述&gt;</h3>
-<p>为一个功能启动规格驱动开发。创建 <code>spec/&lt;feature-slug&gt;/</code>，驱动需求 → 设计 → 任务三段门控，<strong>每道门都会暂停等你确认</strong>；起草工作按技能指引委派给 product-manager 与 architect。</p>
+<p>为一个功能启动规格驱动开发。对新规格创建 <code>.whet/spec/{YYYYMMDD}-{NNN}-{slug}/</code>；若旧 <code>spec/&lt;feature-slug&gt;/</code> 已存在，则原地继续。流程仍是需求 → 设计 → 任务三段门控，<strong>每道门都会暂停等你确认</strong>；起草工作按技能指引委派给 product-manager 与 architect。</p>
 <pre><code><span class="k">/whet:spec</span> <span class="s">给站点加一个支持第三方登录的用户中心</span></code></pre>
 
 <h3 id="cmd-plan"><span class="pill cmd">/whet:plan</span> &lt;目标描述&gt;</h3>
@@ -941,7 +941,7 @@
 <pre><code><span class="k">/whet:do</span> <span class="s">把网关超时改成 30s；给 /health 响应加 version 字段</span></code></pre>
 
 <h3 id="cmd-status"><span class="pill cmd">/whet:status</span> [过滤]</h3>
-<p>紧凑的状态面板：扫描 <code>.whet/plan/</code> 下的活跃台账（每个 ≤ 3 行：名称 / 状态 / 下一动作 / 阻塞）与 <code>spec/</code> 下的规格进度（每个 1 行：功能 / 阶段 / 状态）。过滤可选 <code>plan</code> / <code>spec</code> / <code>all</code>（缺省 <code>all</code>）。</p>
+<p>紧凑的状态面板：扫描 <code>.whet/plan/</code> 下的活跃台账（每个 ≤ 3 行：名称 / 状态 / 下一动作 / 阻塞），以及 <code>.whet/spec/</code> 新布局与旧 <code>spec/</code> 布局下的规格进度（每个 1 行：规格 / 阶段 / 状态）。过滤可选 <code>plan</code> / <code>spec</code> / <code>all</code>（缺省 <code>all</code>）。</p>
 <pre><code><span class="k">/whet:status</span> <span class="s">plan</span></code></pre>
 </section>
 
@@ -1080,7 +1080,7 @@
 </section>
 
 <footer>
-  <p><strong>Whet</strong> · MIT 许可 · <a href="https://github.com/mufasa007/whet" target="_blank" rel="noopener">GitHub 仓库</a> · 本指南对应插件版本 <strong>0.3.2</strong>，生成于 2026-07-04。</p>
+  <p><strong>Whet</strong> · MIT 许可 · <a href="https://github.com/mufasa007/whet" target="_blank" rel="noopener">GitHub 仓库</a> · 本指南对应插件版本 <strong>1.0.0</strong>，生成于 2026-07-06。</p>
   <p>指南内容与 <code>README.md</code> / 各 SKILL.md / agent 定义保持同步；功能变更时请一并更新本文件。</p>
 </footer>
 

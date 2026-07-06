@@ -8,7 +8,18 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - **MINOR** — new agents/skills/commands, new capabilities, template additions.
 - **PATCH** — wording fixes, prompt tuning, doc corrections.
 
-## [Unreleased]
+## [1.0.0] - 2026-07-06
+
+### Changed
+- `/whet:spec` now creates new specs under `.whet/spec/{YYYYMMDD}-{NNN}-{slug}/` instead of project-root `spec/<feature-slug>/`, aligning spec storage with the `/whet:plan` naming pattern while keeping specs separate from plan ledgers.
+- `spec-workflow`, `/whet:spec`, and `/whet:status` now document and recognize both the new `.whet/spec/` layout and legacy `spec/` directories.
+- `README.md`, `CLAUDE.md`, `docs/guide.zh-CN.html`, and `agents/product-manager.md` were updated to reflect the new spec location and compatibility rules.
+- `scripts/regression-test.sh` now asserts the new `.whet/spec/` contract and legacy compatibility wording.
+
+### Migration
+- Existing `spec/<feature-slug>/` directories remain valid and are continued in place.
+- Whet does **not** auto-migrate or rename user-owned legacy spec directories.
+- `/whet:status` reports both new and legacy spec layouts.
 
 ## [0.5.0] - 2026-07-06
 

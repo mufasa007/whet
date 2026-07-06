@@ -14,10 +14,11 @@ Filter: $ARGUMENTS
    - read `issues.md` for unresolved issues marked ☐ or ▶;
    - report in ≤ 3 lines per batch: name, status, next action, blockers.
 
-2. **Specs** — scan `spec/` for feature directories. For each:
+2. **Specs** — scan both `.whet/spec/` (new layout) and legacy `spec/`.
+   For each discovered spec directory:
    - check which stage documents exist (`requirements.md`, `design.md`, `tasks.md`);
    - read the top status marker if present;
-   - report in 1 line per spec: feature, stage, status.
+   - report in 1 line per spec: feature/spec id, stage, status, and mark legacy entries if helpful.
 
 3. **If nothing is active**, say so clearly and offer to create one with `/whet:plan` or `/whet:spec`.
 

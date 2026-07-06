@@ -3,7 +3,8 @@ name: spec-workflow
 description: >
   Spec-driven development workflow. Use when starting a non-trivial feature:
   turns an idea into requirements → design → task list before any code is
-  written, keeping specs in spec/ as versioned artifacts. Also use when the
+  written, keeping specs in `.whet/spec/` as versioned artifacts while
+  continuing to read legacy `spec/` directories. Also use when the
   user says "write a spec", "spec this out", or asks to implement against an
   existing spec.
 ---
@@ -19,13 +20,20 @@ idea → requirements.md → design.md → tasks.md → implementation → verif
 
 ## Directory convention
 
+For **new** specs, create:
+
 ```
-spec/
-└── <feature-slug>/
+.whet/spec/
+└── {YYYYMMDD}-{NNN}-{slug}/
     ├── requirements.md   # WHAT and WHY
     ├── design.md         # HOW
     └── tasks.md          # execution checklist
 ```
+
+Compatibility rule:
+- If legacy `spec/<feature-slug>/` already exists in the user's project,
+  continue that spec in place instead of creating a new directory.
+- Do not auto-migrate or rename user-owned legacy spec directories.
 
 Specs are versioned with the code. A merged feature's spec is documentation;
 an unmerged spec is the plan.
@@ -109,5 +117,5 @@ Not everything needs this ceremony:
 - ❌ Writing code "to explore" and back-filling the spec after.
 - ❌ Specs with no acceptance criteria ("improve performance").
 - ❌ Skipping gates — a design built on unconfirmed requirements is rework.
-- ❌ Letting spec/ rot: if implementation diverged, update the spec in the
-  same PR.
+- ❌ Letting `.whet/spec/` or legacy `spec/` rot: if implementation diverged,
+  update the spec in the same PR.

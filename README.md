@@ -2,7 +2,7 @@
 
 > Sharpen Claude Code into a full product team.
 
-[![Version](https://img.shields.io/badge/version-0.5.0-blue)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue)](./CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 [![Claude Code Plugin](https://img.shields.io/badge/Claude%20Code-plugin-orange)](https://docs.anthropic.com/en/docs/claude-code)
 
@@ -36,9 +36,10 @@ claude --plugin-dir ./whet
 ```
 
 Updates take effect in **new sessions**. Your project data — `.whet/plan/**`
-ledgers and `spec/**` documents — lives in your own repository and is never
-touched by plugin updates. See [CHANGELOG.md](./CHANGELOG.md) for what changed
-in each release; breaking releases (MAJOR) always include a migration note.
+ledgers, `.whet/spec/**` specs, and legacy `spec/**` documents — lives in your
+own repository and is never touched by plugin updates. See [CHANGELOG.md](./CHANGELOG.md)
+for what changed in each release; breaking releases (MAJOR) always include a
+migration note.
 
 ## What's inside
 
@@ -68,7 +69,7 @@ in each release; breaking releases (MAJOR) always include a migration note.
 | `long-task-scheduler` | Orchestrates multi-session work from a per-batch ledger (`.whet/plan/{date}-{seq}-{slug}/`): serial/parallel dispatch by conflict domain, execution/review separation, one-time pre-authorization, decision archiving, per-phase commits |
 | `model-router` | Platform-agnostic tier abstraction (T1 deep reasoning / T2 balanced / T3 fast / T4 extreme) with a runtime model-selection protocol — no hardcoded model names, evidence-based escalation |
 | `token-optimizer` | In-flight techniques (input minimization, cache-friendly prompts, output discipline) plus a four-layer project audit with quality red lines |
-| `spec-workflow` | Gated requirements → design → tasks flow with specs versioned in `spec/` |
+| `spec-workflow` | Gated requirements → design → tasks flow with specs versioned in `.whet/spec/` (legacy `spec/` remains readable) |
 | `quick-fix` | Fast diagnose-and-fix for a single concrete problem: evidence-based fault pinning (`file:line` + causal chain), 2–3 fix options with risk/verification for the user to choose, then minimal-diff execution — one human gate, no ledger |
 
 ### Commands (`commands/`)
@@ -93,7 +94,7 @@ in each release; breaking releases (MAJOR) always include a migration note.
 ## How the pieces fit together
 
 ```
-idea ──/whet:spec──▶ spec/<feature>/                    (spec-workflow)
+idea ──/whet:spec──▶ .whet/spec/{spec-id}/             (spec-workflow)
                           │
    one bug? ──/whet:fix──▶ diagnose → options → you pick → fix+verify   (quick-fix)
                           │
@@ -178,7 +179,7 @@ Issues and PRs are welcome. Before opening a PR:
 - **长程任务调度**（`long-task-scheduler`）：每个长程任务在 `.whet/plan/{日期}-{序号}-{简名}/` 下建立独立台账（执行计划 / 问题列表 / 进度记录 / 决策归档）；按依赖与**冲突域**串并行派发、执行与审核分离、一次性前置授权、重大决策自主决断并归档待事后人工审核、审核通过按阶段自动提交——启动后一次性跑完，执行期零人工介入。
 - **自动模型选择**（`model-router`）：平台无关的 **T1~T4 能力档位抽象**（强推理/均衡/快速/极限），运行时按平台实际可选模型动态落地，不硬编码模型名；从最低够用档起步，凭证据升档，升档决策留痕。长程任务台账激活期间，配套 hook 会硬拦截未显式指定 `model` 的 whet agent 派发，确保每次派发都是有意识的档位选择。
 - **Token 消耗优化**（`token-optimizer`）：会话内手法（输入最小化、缓存友好的稳定前缀、输出纪律）+ **项目级四层诊断**（会话/常驻配置/仓库结构/流程），并设质量红线——损害判断质量的"节省"一律否决。
-- **规格驱动开发**（`spec-workflow`）：需求 → 设计 → 任务三段门控流程，规格随代码版本化在 `spec/`。
+- **规格驱动开发**（`spec-workflow`）：需求 → 设计 → 任务三段门控流程；新规格默认落在 `.whet/spec/{日期}-{序号}-{简名}/`，并继续兼容旧 `spec/` 布局。
 - **快速排查修复**（`quick-fix`）：针对单个具体问题（bug、报错、构建/测试失败）的快速通道——先以证据把故障点定位到 `file:line` 级并给出因果链，再提出 2–3 个真正不同的修复方案（含风险、改动量、验证方式）供人工审定，最后按选定方案最小化改动执行并跑验证；全程仅"选方案"一个人工介入点，不建台账。
 
 ### 安装
@@ -196,8 +197,8 @@ Issues and PRs are welcome. Before opening a PR:
 /plugin update whet@whet          # 更新已安装插件
 ```
 
-更新在**新会话**中生效。你项目里的 `.whet/plan/**` 台账与 `spec/**` 规格属于
-用户数据，插件更新不会改动它们。各版本变更见 [CHANGELOG.md](./CHANGELOG.md)；
+更新在**新会话**中生效。你项目里的 `.whet/plan/**` 台账、`.whet/spec/**`
+规格与旧 `spec/**` 规格都属于用户数据，插件更新不会改动它们。各版本变更见 [CHANGELOG.md](./CHANGELOG.md)；
 破坏性版本（MAJOR）必附迁移说明。
 
 ### 常用命令
@@ -214,7 +215,7 @@ Issues and PRs are welcome. Before opening a PR:
 ### 架构总览
 
 ```
-idea ──/whet:spec──▶ spec/<功能名>/                    (spec-workflow)
+idea ──/whet:spec──▶ .whet/spec/{规格ID}/             (spec-workflow)
                           │
    单个bug? ──/whet:fix──▶ 排查 → 出方案 → 人工选定 → 修复+验证   (quick-fix)
                           │
