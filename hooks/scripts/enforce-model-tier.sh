@@ -35,7 +35,8 @@ case "$SUBAGENT" in
         echo "  T3 fast           — read-only scouting, mechanical edits, reconciliation"
         echo "  T2 balanced       — routine implementation, tests, routine review (default)"
         echo "  T1 deep reasoning — architecture, stuck root-cause, gate/security review"
-        echo "  T4 extreme        — disabled unless the user explicitly consented"
+        echo "  T0 extreme        — top flagship, above T1 (Claude Code: model=fable);"
+        echo "                      architecture design & blocking decisions pre-authorized"
         echo "Note tier + model + one-line reason in the dispatch, per the batch ledger."
       } >&2
       exit 2

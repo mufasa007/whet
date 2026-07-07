@@ -31,7 +31,8 @@ templates. There is no build step; Markdown and JSON are the product.
   minimal-diff fix — single session, no ledger.
 - Execution/review are separated: executor agents only bring work to "ready
   for review"; only `task-reviewer`'s explicit verdict unlocks a phase commit.
-- `model-router` defines the shared T1–T4 tier vocabulary referenced by
+- `model-router` defines the shared T0–T3 tier vocabulary (smaller = stronger;
+  T0 is the extreme flagship above T1) referenced by
   plans, dispatch prompts, agents, and the hook message — this is why no file
   may hardcode a model name (tiers resolve to actual models at runtime).
 - `hooks/hooks.json` wires: SessionStart → `session-ledger.sh` (detect latest
@@ -57,7 +58,7 @@ Cross-file couplings — keep in sync when changing one side:
 - Agent frontmatter: `name` matches file stem; `description` states WHEN to
   invoke (it drives automatic delegation); default `model: inherit`. Never
   hardcode specific model names — use family aliases (`haiku`, `sonnet`) only
-  for intentionally cheap agents; capability tiers are expressed as T1–T4
+  for intentionally cheap agents; capability tiers are expressed as T0–T3
   (see skills/model-router).
 - Skill descriptions must name concrete triggers ("use when ...").
 - Hook scripts: bash, `set -euo pipefail`, executable bit set, exit 2 to block

@@ -231,7 +231,7 @@ for fn in sorted(os.listdir(d)):
     mo=re.search(r'^model:\s*(\S+)',fm,re.M)
     (ok if mo else no)(f"{fn} 有 model 字段")
     # CLAUDE.md: 禁止硬编码具体模型名，只允许 inherit / 家族别名
-    if mo and mo.group(1) not in ("inherit","haiku","sonnet","opus"):
+    if mo and mo.group(1) not in ("inherit","haiku","sonnet","opus","fable"):
         no(f"{fn} model='{mo.group(1)}' 疑似硬编码具体模型名")
     else:
         ok(f"{fn} model 用别名/inherit")

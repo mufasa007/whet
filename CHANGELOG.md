@@ -8,6 +8,43 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: 
 - **MINOR** — new agents/skills/commands, new capabilities, template additions.
 - **PATCH** — wording fixes, prompt tuning, doc corrections.
 
+## [2.0.0] - 2026-07-07
+
+### Changed
+- **BREAKING — tier vocabulary renamed `T4` → `T0`.** The extreme escape-hatch
+  tier now sits at `T0`, above `T1`, so tier numbering is monotonic (smaller =
+  stronger: `T0 > T1 > T2 > T3`). Previously `T4` read as "strongest" while the
+  numbers otherwise decreased in strength — the rename removes that inversion.
+  Affects `skills/model-router/SKILL.md`, `skills/long-task-scheduler/templates/plan.md`,
+  `hooks/scripts/enforce-model-tier.sh`, `README.md`, `CLAUDE.md`, and
+  `docs/guide.zh-CN.html`.
+- `skills/model-router/SKILL.md`: runtime protocol step 2 now sorts every probed
+  model along one capability gradient and cuts the ranked list into all four
+  tiers by position (top flagship → T0, … , fast-light → T3) instead of bucketing
+  into three groups — the ranking assigns tiers, so an unseen new model lands
+  correctly by capability alone, never by name.
+
+### Fixed
+- `skills/model-router/SKILL.md`: the tier→model mapping previously defined only
+  T1/T2/T3 at runtime, leaving the extreme tier with no concrete target — so
+  top-tier work silently ran on the strongest *named alias* (Opus) rather than
+  the platform's true flagship. The extreme tier (now T0) is defined by the
+  runtime probe: on Claude Code the `fable` alias maps to it, and a stronger
+  non-`fable` flagship is dispatched directly once probed. `scripts/regression-test.sh`
+  agent-model allowlist adds `fable`.
+
+### Added
+- Pre-authorized autonomous T0 escalation for **system-architecture design** and
+  **blocking-problem decisions** (all other T0 use still needs explicit user
+  consent); documented in `model-router`, the `long-task-scheduler` plan
+  template, the hook guard message, and the Chinese guide.
+
+### Migration
+- Update any project docs, saved plans, or personal `CLAUDE.md` notes that
+  reference `T4` to `T0`. In-flight `.whet/plan/**` ledgers on disk keep working —
+  just read the extreme-tier label as `T0`. If you kept a personal rule like
+  "T4 = Fable", restate it as "T0 = Fable (the extreme tier above T1)".
+
 ## [1.0.0] - 2026-07-06
 
 ### Changed

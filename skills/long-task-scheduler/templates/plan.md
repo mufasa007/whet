@@ -14,8 +14,11 @@
   review; an executor's "green" prose is a claim, not proof.
 - Execute → verify → adversarial review → commit, per phase. No review, no commit.
 - Conflicting tasks serial, disjoint tasks parallel.
-- Dispatch by model tier (T1–T4), lowest sufficient tier first, escalate on
-  failure. T4 requires user consent (pre-authorized or not at all).
+- Dispatch by model tier (T0–T3, smaller = stronger; T0 is the extreme escape
+  hatch above T1), lowest sufficient tier first, escalate on failure. T0 needs
+  user consent, EXCEPT system-architecture design and blocking-problem
+  decisions, which are pre-authorized for autonomous T0 (Claude Code:
+  model=fable).
 - Major blockers/decisions auto-archived here and flagged "needs human review".
 
 ## 0.1 One-Time Pre-Authorization List

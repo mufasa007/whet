@@ -356,7 +356,7 @@
 <nav class="sidebar">
   <div class="logo">
     <div class="name">Whet</div>
-    <div class="tag">中文使用指南 · v1.0.0</div>
+    <div class="tag">中文使用指南 · v2.0.0</div>
   </div>
   <div class="group">开始</div>
   <a href="#intro">Whet 是什么</a>
@@ -417,7 +417,7 @@
   </div>
   <div class="card">
     <h4 style="margin-top:0">🎚️ 自动模型选择</h4>
-    <p style="font-size:14.5px">平台无关的 <strong>T1–T4 能力档位</strong>抽象：计划里只写档位，运行时再映射到实际可用模型。从最低够用档起步，凭证据升档，绝不硬编码模型名。</p>
+    <p style="font-size:14.5px">平台无关的 <strong>T0–T3 能力档位</strong>抽象（数字越小越强，T0 为 T1 之上的极限档）：计划里只写档位，运行时再映射到实际可用模型。从最低够用档起步，凭证据升档，绝不硬编码模型名。</p>
   </div>
   <div class="card">
     <h4 style="margin-top:0">💰 Token 消耗优化</h4>
@@ -555,7 +555,7 @@
 <ul>
   <li><strong>执行与审核分离</strong> —— 执行员只把工作做到「可供审核」，从不自我宣布完成；只有 <code>task-reviewer</code> 明确给出「允许提交」裁决，才会解锁该阶段的 commit。</li>
   <li><strong>一次连续运行</strong> —— 澄清与授权全部前置；运行中的决策自主决断并归档到 <code>issues.md</code> 供事后人工审阅，绝不中途停下来问你。</li>
-  <li><strong>档位而非模型名</strong> —— 计划里只标 T1–T4 能力档位，实际模型在运行时根据平台当下暴露的选项动态匹配，新旗舰会被自动纳入。</li>
+  <li><strong>档位而非模型名</strong> —— 计划里只标 T0–T3 能力档位（数字越小越强，T0 为极限档），实际模型在运行时根据平台当下暴露的选项动态匹配，新旗舰会被自动纳入。</li>
   <li><strong>冲突域</strong> —— 触碰同一文件 / 配置 / 数据库写入目标 / 端口的任务必须串行；彼此无交集的任务并入同一批次并行跑。</li>
 </ul>
 </section>
@@ -714,9 +714,15 @@
 
 <p><strong>核心信条</strong>：把每件事路由到<strong>能可靠完成它的最便宜档位</strong>；升档凭证据，不凭感觉。</p>
 
-<h4>T1–T4 档位抽象（平台无关，永不硬编码模型名）</h4>
+<h4>T0–T3 档位抽象（平台无关，永不硬编码模型名；数字越小越强：T0 &gt; T1 &gt; T2 &gt; T3，T0 为 T1 之上的极限档）</h4>
 <table>
   <tr><th>档位</th><th>画像</th><th>适合</th><th>成本</th></tr>
+  <tr>
+    <td><span class="pill t4">T0 极限</span></td>
+    <td>超越 T1；平台最强旗舰；<strong>默认禁用，需用户同意</strong></td>
+    <td>T1 都解不开的罕见难题、<strong>系统架构设计、阻塞问题决策</strong>、重大决策升级</td>
+    <td>最高</td>
+  </tr>
   <tr>
     <td><span class="pill t1">T1 强推理</span></td>
     <td>最强推理、长上下文、高风险判断</td>
@@ -735,20 +741,16 @@
     <td>查找、只读侦察、归档、摘要、模板填充、机械式修改</td>
     <td>低</td>
   </tr>
-  <tr>
-    <td><span class="pill t4">T4 极限</span></td>
-    <td>超越 T1；<strong>默认禁用，需用户明确同意</strong></td>
-    <td>T1 都解不开的罕见难题、重大决策升级</td>
-    <td>最高</td>
-  </tr>
 </table>
+
+<p style="font-size:14px;color:#666">T0 授权：在 long-task-scheduler 预授权清单中记为 <code>Tier escalation authorized up to: T0</code>。其中<strong>系统/软件架构设计</strong>与<strong>阻塞问题决策</strong>两类已预授权可自主升 T0，无需临时征询；其余 T0 使用仍需用户明确同意。</p>
 
 <h4>运行时选型协议（每次派发前执行）</h4>
 <ol>
   <li><strong>探测可用性</strong> —— 读取当前工具实际暴露的模型列表（Claude Code 里是 Agent 工具 <code>model</code> 参数的候选与 <code>/model</code>），绝不凭记忆假设某模型存在或最强；</li>
-  <li><strong>按能力分级</strong> —— 依家族定位、推理支持、上下文长度、价格档，把可用模型归入 强推理 / 均衡 / 快轻 三组；</li>
-  <li><strong>映射档位</strong> —— T1 → 最强推理模型；T2 → 均衡；T3 → 快轻。若继承会话模型已满足目标档位，则省略 model 参数；</li>
-  <li><strong>抗演化</strong> —— 平台上新旗舰自动进入 T1 候选；退役模型向下映射到最近的存活档位；</li>
+  <li><strong>按能力排序分档（不认名字）</strong> —— 依家族定位、推理支持、上下文长度、价格档，把所有探测到的模型沿单一能力梯度排序，再按位置切成四档（最强旗舰 → T0、次强推理 → T1、均衡 → T2、快轻 → T3）。<strong>定档靠排序位置而非名字</strong>，所以几个月后冒出的、从没见过的新模型，纯凭能力就落到正确档位；</li>
+  <li><strong>映射档位</strong> —— 从排序结果落地：T0 → 平台最强旗舰（Claude Code 上 <code>fable</code> 别名对应之，如出现更强的非 fable 旗舰则直接派发该模型 id）；T1 → 最强推理；T2 → 均衡；T3 → 快轻。若继承会话模型已满足目标档位，则省略 model 参数；</li>
+  <li><strong>抗演化</strong> —— 平台上新旗舰经探测自动顶替 T0（原 T0 下沉至 T1 候选池）；退役模型向下映射到最近的存活档位；<strong>绝不让写死的别名封住上限</strong>——由排序探测而非文档里的示例名决定今天的 T0；</li>
   <li><strong>诚实降级</strong> —— 平台只支持会话级选型时，把同档任务合批并在提示词中注明推荐档位；完全无法选型时记录档位缺口——能力敏感的任务卡在 T2 以下时<strong>标记待人工审阅，而不是低质量硬跑</strong>。</li>
 </ol>
 
@@ -1066,8 +1068,8 @@
 <h4>Q：长程任务中途我想改需求怎么办？</h4>
 <p>随时可以介入——台账在磁盘上，停下来改 <code>plan.md</code>（增量修改，不要整篇重写），然后 <code>/whet:resume</code> 继续。调度器每轮开始都会重读台账对齐事实，你的修改自然生效。</p>
 
-<h4>Q：T4 档位怎么启用？</h4>
-<p>T4 默认禁用，只有你明确同意才会使用——要么在 <code>/whet:plan</code> 的预授权清单中批准，要么运行外单独授权。它面向 T1 都解不开的罕见难题，日常几乎用不到。</p>
+<h4>Q：T0 档位怎么启用？</h4>
+<p>T0 是 T1 之上的极限档，默认禁用，只有你明确同意才会使用——要么在 <code>/whet:plan</code> 的预授权清单中批准，要么运行外单独授权。它面向 T1 都解不开的罕见难题；此外系统架构设计与阻塞问题决策已预授权可自主升 T0。在 Claude Code 上由 <code>fable</code> 别名落地。</p>
 
 <h4>Q：Whet 会不会自己动我的 .env 或密钥文件？</h4>
 <p>不会。<code>protect-sensitive</code> 钩子在写入前拦截所有敏感文件（env、密钥、证书、凭据），只放行 <code>.example</code> / <code>.sample</code> / <code>.template</code> 后缀的模板。确需修改时会请你本人操作或明确批准。此外长程运行还有三条与授权无关的硬禁令：不删业务数据、不泄露机密、不伪造验证结果。</p>

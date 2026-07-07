@@ -2,7 +2,7 @@
 
 > Sharpen Claude Code into a full product team.
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue)](./CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 [![Claude Code Plugin](https://img.shields.io/badge/Claude%20Code-plugin-orange)](https://docs.anthropic.com/en/docs/claude-code)
 
@@ -67,7 +67,7 @@ migration note.
 | Skill | What it does |
 |---|---|
 | `long-task-scheduler` | Orchestrates multi-session work from a per-batch ledger (`.whet/plan/{date}-{seq}-{slug}/`): serial/parallel dispatch by conflict domain, execution/review separation, one-time pre-authorization, decision archiving, per-phase commits |
-| `model-router` | Platform-agnostic tier abstraction (T1 deep reasoning / T2 balanced / T3 fast / T4 extreme) with a runtime model-selection protocol — no hardcoded model names, evidence-based escalation |
+| `model-router` | Platform-agnostic tier abstraction (smaller = stronger: T0 extreme / T1 deep reasoning / T2 balanced / T3 fast — T0 is the top flagship above T1, `fable` on Claude Code; architecture & blocking decisions may auto-escalate to T0) with a runtime model-selection protocol — no hardcoded model names, evidence-based escalation |
 | `token-optimizer` | In-flight techniques (input minimization, cache-friendly prompts, output discipline) plus a four-layer project audit with quality red lines |
 | `spec-workflow` | Gated requirements → design → tasks flow with specs versioned in `.whet/spec/` (legacy `spec/` remains readable) |
 | `quick-fix` | Fast diagnose-and-fix for a single concrete problem: evidence-based fault pinning (`file:line` + causal chain), 2–3 fix options with risk/verification for the user to choose, then minimal-diff execution — one human gate, no ledger |
@@ -120,9 +120,11 @@ Key design points (borrowed from battle-tested long-horizon agent crews):
 - **One continuous run** — clarification & authorization are front-loaded;
   mid-run decisions are made autonomously and archived to `issues.md` for
   post-run human review, never stalling the run.
-- **Tiers, not model names** — plans mark T1–T4 capability tiers; actual
-  models are matched at runtime from what the platform exposes, so new
-  flagships are adopted automatically.
+- **Tiers, not model names** — plans mark T0–T3 capability tiers (smaller =
+  stronger; T0 is the extreme flagship above T1); actual models are matched at
+  runtime from what the platform exposes, so new flagships are adopted
+  automatically (on Claude Code the `fable` alias maps to T0). Architecture
+  design & blocking-problem decisions may auto-escalate to T0.
 - **Conflict domains** — same file / config / DB target / port ⇒ serial;
   disjoint ⇒ parallel batch.
 
@@ -163,7 +165,7 @@ Issues and PRs are welcome. Before opening a PR:
    `bash -n hooks/scripts/*.sh` and JSON-validate the manifests.
 3. Follow the conventions in [CLAUDE.md](./CLAUDE.md) — notably: agent
    `description` states *when* to invoke; never hardcode model names (use
-   T1–T4 tiers); keep every document token-lean.
+   T0–T3 tiers); keep every document token-lean.
 
 ## License
 
@@ -177,7 +179,7 @@ Issues and PRs are welcome. Before opening a PR:
 
 - **专业 Agent（14 个）**：产品经理、架构师、UI/UX 设计师、前端、后端、移动端、测试、运维、代码评审、**任务审核器**（对抗式完成度审计，把关每个阶段提交）、**轻量执行员**（haiku 档，跑小而明确的任务）、**安全工程师**（安全审计、威胁建模、依赖漏洞扫描）、**数据工程师**（数据建模、SQL 优化、ETL 设计、schema migration）、**技术文档工程师**（文档撰写、API 文档、发布说明、README 维护）。
 - **长程任务调度**（`long-task-scheduler`）：每个长程任务在 `.whet/plan/{日期}-{序号}-{简名}/` 下建立独立台账（执行计划 / 问题列表 / 进度记录 / 决策归档）；按依赖与**冲突域**串并行派发、执行与审核分离、一次性前置授权、重大决策自主决断并归档待事后人工审核、审核通过按阶段自动提交——启动后一次性跑完，执行期零人工介入。
-- **自动模型选择**（`model-router`）：平台无关的 **T1~T4 能力档位抽象**（强推理/均衡/快速/极限），运行时按平台实际可选模型动态落地，不硬编码模型名；从最低够用档起步，凭证据升档，升档决策留痕。长程任务台账激活期间，配套 hook 会硬拦截未显式指定 `model` 的 whet agent 派发，确保每次派发都是有意识的档位选择。
+- **自动模型选择**（`model-router`）：平台无关的**能力档位抽象（数字越小越强：T0 极限/T1 强推理/T2 均衡/T3 快速——T0 为 T1 之上的最强旗舰，在 Claude Code 上由 `fable` 别名落地）**，运行时按平台实际可选模型动态落地，不硬编码模型名；从最低够用档起步，凭证据升档，升档决策留痕；系统架构设计与阻塞问题决策已预授权可自主升至 T0。长程任务台账激活期间，配套 hook 会硬拦截未显式指定 `model` 的 whet agent 派发，确保每次派发都是有意识的档位选择。
 - **Token 消耗优化**（`token-optimizer`）：会话内手法（输入最小化、缓存友好的稳定前缀、输出纪律）+ **项目级四层诊断**（会话/常驻配置/仓库结构/流程），并设质量红线——损害判断质量的"节省"一律否决。
 - **规格驱动开发**（`spec-workflow`）：需求 → 设计 → 任务三段门控流程；新规格默认落在 `.whet/spec/{日期}-{序号}-{简名}/`，并继续兼容旧 `spec/` 布局。
 - **快速排查修复**（`quick-fix`）：针对单个具体问题（bug、报错、构建/测试失败）的快速通道——先以证据把故障点定位到 `file:line` 级并给出因果链，再提出 2–3 个真正不同的修复方案（含风险、改动量、验证方式）供人工审定，最后按选定方案最小化改动执行并跑验证；全程仅"选方案"一个人工介入点，不建台账。
@@ -238,7 +240,7 @@ idea ──/whet:spec──▶ .whet/spec/{规格ID}/             (spec-workflow
 
 - **执行与审核分离** —— 执行员只把工作做到「可供审核」；只有 `task-reviewer` 明确给出「允许提交」裁决，才会解锁该阶段的 commit。
 - **一次连续运行** —— 澄清与授权全部前置；运行中的决策自主决断并归档到 `issues.md` 供事后人工审阅，绝不中途停下来问你。
-- **档位而非模型名** —— 计划里只标 T1–T4 能力档位，实际模型在运行时按平台暴露的选项动态匹配，新旗舰自动纳入。
+- **档位而非模型名** —— 计划里只标 T0–T3 能力档位（数字越小越强，T0 为 T1 之上的极限档），实际模型在运行时按平台暴露的选项动态匹配，新旗舰自动纳入（Claude Code 上 `fable` 别名对应 T0；架构设计与阻塞问题决策可自主升至 T0）。
 - **冲突域** —— 触碰同一文件 / 配置 / 数据库写入目标 / 端口的任务必须串行；彼此无交集的任务并入同一批次并行跑。
 
 ### 仓库布局
